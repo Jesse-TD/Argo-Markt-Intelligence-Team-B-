@@ -2,14 +2,13 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Dashboard from './dashboard/Dashboard';
 
 function App() {
-  return(
+  return (
     <BrowserRouter>
       <Routes>
-        <Route exact path="/" Component={Dashboard} />
+        <Route path="/" element={<Dashboard />} />
       </Routes>
     </BrowserRouter>
   );
-
 }
 
 export default App;
