@@ -53,8 +53,12 @@ ButtonField.propTypes = {
   setOpen: PropTypes.func,
 };
 
+
+// this is for the calander on the header
+
 export default function CustomDatePicker() {
-  const [value, setValue] = React.useState(dayjs('2023-04-17'));
+  const date = new Date();
+  const [value, setValue] = React.useState(dayjs(date));
   const [open, setOpen] = React.useState(false);
 
   return (

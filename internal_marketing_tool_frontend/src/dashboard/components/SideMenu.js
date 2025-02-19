@@ -8,8 +8,11 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import SelectContent from './SelectContent';
 import MenuContent from './MenuContent';
-import CardAlert from './CardAlert';
+
 import OptionsMenu from './OptionsMenu';
+
+
+// this file contains the information for the menu on the left side of the screen
 
 const drawerWidth = 240;
 
@@ -54,8 +57,10 @@ export default function SideMenu() {
         }}
       >
         <MenuContent />
-        <CardAlert />
+        
       </Box>
+
+      {/* this stack block contains the information for the users information on the bottom */}
       <Stack
         direction="row"
         sx={{
@@ -68,16 +73,16 @@ export default function SideMenu() {
       >
         <Avatar
           sizes="small"
-          alt="Riley Carter"
+          alt="Eric Medina"
           src="/static/images/avatar/7.jpg"
           sx={{ width: 36, height: 36 }}
         />
         <Box sx={{ mr: 'auto' }}>
           <Typography variant="body2" sx={{ fontWeight: 500, lineHeight: '16px' }}>
-            Riley Carter
+            Eric Medina
           </Typography>
           <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-            riley@email.com
+            eric@email.com
           </Typography>
         </Box>
         <OptionsMenu />

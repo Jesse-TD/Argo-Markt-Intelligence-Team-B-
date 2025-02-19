@@ -8,6 +8,9 @@ import ColorModeIconDropdown from '../../shared-theme/ColorModeIconDropdown';
 
 import Search from './Search';
 
+// this is the header component/ the div on the top of the app 
+// uses the breadcrumbs, search bar, date picker, notification icon(does nothing), and the light/dark theme 
+
 export default function Header() {
   return (
     <Stack
