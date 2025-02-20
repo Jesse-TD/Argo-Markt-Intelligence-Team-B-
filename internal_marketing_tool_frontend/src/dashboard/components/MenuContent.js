@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useState } from 'react';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -11,28 +12,34 @@ import PeopleRoundedIcon from '@mui/icons-material/PeopleRounded';
 import AssignmentRoundedIcon from '@mui/icons-material/AssignmentRounded';
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
-import HelpRoundedIcon from '@mui/icons-material/HelpRounded';
+
 
 const mainListItems = [
-  { text: 'Home', icon: <HomeRoundedIcon /> },
-  { text: 'Analytics', icon: <AnalyticsRoundedIcon /> },
-  { text: 'Clients', icon: <PeopleRoundedIcon /> },
-  { text: 'Tasks', icon: <AssignmentRoundedIcon /> },
+  { id:0, text: 'Home', icon: <HomeRoundedIcon /> },
+  { id:1, text: 'Reports', icon: <AnalyticsRoundedIcon /> },
+  { id:2, text: 'Clients', icon: <PeopleRoundedIcon /> },
+  { id:3, text: 'Tasks', icon: <AssignmentRoundedIcon /> },
 ];
 
 const secondaryListItems = [
-  { text: 'Settings', icon: <SettingsRoundedIcon /> },
-  { text: 'About', icon: <InfoRoundedIcon /> },
-  { text: 'Feedback', icon: <HelpRoundedIcon /> },
+  { id:4, text: 'Settings', icon: <SettingsRoundedIcon /> },
+  { id:5, text: 'About', icon: <InfoRoundedIcon /> },
 ];
 
+
 export default function MenuContent() {
+  const [selectedIndex, setSelectedIndex] = useState();
+
+  const handleItem = (props) => {
+    setSelectedIndex(props);
+  };
+
   return (
     <Stack sx={{ flexGrow: 1, p: 1, justifyContent: 'space-between' }}>
       <List dense>
-        {mainListItems.map((item, index) => (
-          <ListItem key={index} disablePadding sx={{ display: 'block' }}>
-            <ListItemButton selected={index === 0}>
+        {mainListItems.map(item => (
+          <ListItem key={item.id} disablePadding sx={{ display: 'block' }}>
+            <ListItemButton onClick={() => handleItem(item.id)} selected={selectedIndex === item.id}>
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.text} />
             </ListItemButton>
@@ -40,9 +47,9 @@ export default function MenuContent() {
         ))}
       </List>
       <List dense>
-        {secondaryListItems.map((item, index) => (
-          <ListItem key={index} disablePadding sx={{ display: 'block' }}>
-            <ListItemButton>
+        {secondaryListItems.map(item => (
+          <ListItem key={item.id} disablePadding sx={{ display: 'block' }}>
+            <ListItemButton onClick={() => handleItem(item.id)} selected = {selectedIndex === item.id}>
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.text} />
             </ListItemButton>

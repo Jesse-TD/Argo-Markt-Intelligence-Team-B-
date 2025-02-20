@@ -16,8 +16,8 @@ export default function Copyright(props) {
       ]}
     >
       {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Sitemark
+      <Link color="inherit" href="https://github.com/Jesse-TD/Argo-Markt-Intelligence-Team-B-">
+        Team12
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}

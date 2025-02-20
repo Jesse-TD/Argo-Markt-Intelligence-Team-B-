@@ -5,6 +5,10 @@ import CustomDatePicker from './CustomDatePicker';
 import NavbarBreadcrumbs from './NavbarBreadcrumbs';
 import MenuButton from './MenuButton';
 import ColorModeIconDropdown from '../../shared-theme/ColorModeIconDropdown';
+import SideMenu from './SideMenu';
+import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
+import { Tooltip } from '@mui/material';
+
 
 import Search from './Search';
 
@@ -12,6 +16,12 @@ import Search from './Search';
 // uses the breadcrumbs, search bar, date picker, notification icon(does nothing), and the light/dark theme 
 
 export default function Header() {
+  const [open, setOpen] = React.useState(false);
+  
+  const toggleDrawer = (newOpen) => {
+    setOpen(newOpen);
+  };
+
   return (
     <Stack
       direction="row"
@@ -25,14 +35,31 @@ export default function Header() {
       }}
       spacing={2}
     >
+      {/* tooltip adds a on hover*/}
+      <Tooltip title="Menu" placement='bottom'>
+        {/* Toggle Button for SideMenu */}
+        <MenuButton 
+          aria-label="Open menu" 
+          onClick={() => toggleDrawer(true)}
+          >
+          <MenuRoundedIcon />
+        </MenuButton>
+      </Tooltip>
+      {/* SideMenu (Collapsible Sidebar) */}
+      <SideMenu open={open} toggleDrawer={toggleDrawer} />
+
       <NavbarBreadcrumbs />
       <Stack direction="row" sx={{ gap: 1 }}>
         <Search />
         <CustomDatePicker />
-        <MenuButton showBadge aria-label="Open notifications">
-          <NotificationsRoundedIcon />
-        </MenuButton>
-        <ColorModeIconDropdown />
+        <Tooltip title="Notifications" placement='bottom'>
+          <MenuButton showBadge aria-label="Open notifications">
+            <NotificationsRoundedIcon />
+          </MenuButton>
+        </Tooltip>
+        <Tooltip title="Theme" placement='bottom'>
+          <ColorModeIconDropdown />
+        </Tooltip>
       </Stack>
     </Stack>
   );
