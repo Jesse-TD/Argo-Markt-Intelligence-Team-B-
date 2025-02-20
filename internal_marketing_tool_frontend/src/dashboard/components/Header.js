@@ -35,6 +35,8 @@ export default function Header() {
       }}
       spacing={2}
     >
+
+      <Stack direction="row" sx={{gap: 5, alignItems:'center'}}>
       {/* tooltip adds a on hover*/}
       <Tooltip title="Menu" placement='bottom'>
         {/* Toggle Button for SideMenu */}
@@ -47,6 +49,9 @@ export default function Header() {
       </Tooltip>
       {/* SideMenu (Collapsible Sidebar) */}
       <SideMenu open={open} toggleDrawer={toggleDrawer} />
+
+      <img src="/Type=App.svg" alt="App Logo" width="75" height="75" />
+      </Stack>
 
       <NavbarBreadcrumbs />
       <Stack direction="row" sx={{ gap: 1 }}>
