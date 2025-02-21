@@ -32,6 +32,7 @@ export default function Header() {
         justifyContent: 'space-between',
         maxWidth: { sm: '100%', md: '1700px' },
         pt: 1.5,
+        borderBottom: 1
       }}
       spacing={2}
     >
@@ -53,7 +54,7 @@ export default function Header() {
       <img src="/Type=App.svg" alt="App Logo" width="75" height="75" />
       </Stack>
 
-      <NavbarBreadcrumbs />
+      {/* <NavbarBreadcrumbs /> */}
       <Stack direction="row" sx={{ gap: 1 }}>
         <Search />
         <CustomDatePicker />
