@@ -66,6 +66,8 @@ This Requirements Documentation is prepared for the SE 4485 Software Engineering
 
 **Figure 1.0**
 
+![Login UML Diagram](/Charts/loginpage.drawio.png)
+
 **Use Case Name:** User Log In  
 **Actors:** User, Authenticator  
 **User:** Enters credentials into the login page.  
@@ -110,6 +112,8 @@ This Requirements Documentation is prepared for the SE 4485 Software Engineering
 ### Use Case: User Logout
 
 **Figure 1.1**
+
+![Logout UML Diagram](/Charts/Logout.png)
 
 **Use Case Name:** User Logout  
 **Actors:** User, Authenticator  
@@ -158,6 +162,8 @@ This Requirements Documentation is prepared for the SE 4485 Software Engineering
 
 **Figure 1.2**
 
+![Dashboard UML Diagram](/Charts/Dashboard.png)
+
 **Use Case Name:** Request Engagement Metrics  
 **Actors:** User, GA4 API, ChatGPT AI, System API, Dashboard  
 **User:** Interacts with the dashboard to view engagement metrics and AI-powered insights.  
@@ -195,6 +201,8 @@ This Requirements Documentation is prepared for the SE 4485 Software Engineering
 ### Use Case: Report Download
 
 **Figure 1.3**
+
+![Downloading Reports UML Diagram](/Charts/Report_Download.png)
 
 **Use Case Name:** Report Download  
 **Actors:**  
@@ -242,6 +250,8 @@ This Requirements Documentation is prepared for the SE 4485 Software Engineering
 ### Use Case: GPT Insights
 
 **Figure 1.4**
+
+![GPT Insights UML Diagram](/Charts/GPT_Insights.png)
 
 **Use Case Name:** GPT Insights  
 **Actors:**
