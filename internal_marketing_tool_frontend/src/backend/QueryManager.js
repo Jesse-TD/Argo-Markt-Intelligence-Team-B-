@@ -1,44 +1,39 @@
 // QueryManager.js
 
-// 1. Import the Google Analytics Data API client library
 const {BetaAnalyticsDataClient} = require('@google-analytics/data');
 const path = require('path');
 
-// 2. Initialize a client with your service account credentials
-//    Option A: Provide the path to your JSON key file
-//    Option B: Use environment variables or a credentials object
-const analyticsDataClient = new BetaAnalyticsDataClient({
-  keyFilename: path.join(__dirname, 'PATH_TO_YOUR_SERVICE_ACCOUNT.json'),
-  // or credentials: {
-  //   client_email: '...',
-  //   private_key: '...',
-  // }
-});
+// Initialize client with credentials from json file
+const credentials = require('./credentials.json');
+const propertyId = credentials.project_id;
 
+const analyticsDataClient = new BetaAnalyticsDataClient({
+  credentials: credentials,
+  projectId: propertyId
+});
 
 // Customer Acquisition Total & New Users
 async function runReport() {
   try {
-    // 3. Construct the request object
     const [response] = await analyticsDataClient.runReport({
-      property: `properties/YOUR_PROPERTY_ID`, // e.g. properties/123456789
+      property: `properties/${propertyId}`,
       dateRanges: [
         {
-            startDate: '365daysAgo',
-            endDate: 'yesteday',
+          startDate: '365daysAgo',
+          endDate: 'yesterday',
         },
       ],
       dimensions: [
         {
-            name: 'month',
+          name: 'month',
         },
       ],
       metrics: [
         {
-            name: 'newUsers',
+          name: 'newUsers',
         },
         {
-            name: 'totalUsers'
+          name: 'totalUsers'
         }
       ],
       metricAggregations: [
@@ -46,14 +41,33 @@ async function runReport() {
       ]
     });
 
-    // 4. Output the results
-    console.log('Report result:');
-    response.rows.forEach((row) => {
-      const newUsers = row.metricValues[0].value;
-      const totalUsers = row.metricValues[1].value;
-      console.log(`Total Users: ${totalUsers}, New Users: ${newUsers}`);
-    });
+    // Process the results and ensure we return an array
+    if (!response.rows) {
+      return [];
+    }
+
+    const results = response.rows.map((row) => ({
+      month: row.dimensionValues[0].value,
+      newUsers: parseInt(row.metricValues[0].value) || 0,
+      totalUsers: parseInt(row.metricValues[1].value) || 0
+    }));
+
+    // Add totals if available
+    if (response.metricAggregateTotals) {
+      results.push({
+        month: 'TOTAL',
+        newUsers: parseInt(response.metricAggregateTotals[0]) || 0,
+        totalUsers: parseInt(response.metricAggregateTotals[1]) || 0
+      });
+    }
+
+    return results;
   } catch (err) {
     console.error('GA4 Data API error:', err);
+    return []; // Return empty array instead of throwing error
   }
 }
+
+module.exports = {
+  runReport
+};
