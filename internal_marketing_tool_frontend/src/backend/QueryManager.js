@@ -13,7 +13,7 @@ const analyticsDataClient = new BetaAnalyticsDataClient({
 });
 
 // Customer Acquisition Total & New Users
-async function runReport() {
+async function runNewVsTrueUserReport() {
   try {
     const [response] = await analyticsDataClient.runReport({
       property: `properties/${propertyId}`,
