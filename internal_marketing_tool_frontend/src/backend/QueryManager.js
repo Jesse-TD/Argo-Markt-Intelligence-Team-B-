@@ -5,18 +5,20 @@ const path = require('path');
 
 // Initialize client with credentials from json file
 const credentials = require('./credentials.json');
-const propertyId = credentials.project_id;
+// Use the actual numeric GA4 Property ID (not project_id from credentials)
+const propertyId = '324172901'; // Replace this with your numeric GA4 Property ID
+const projectId = credentials.project_id; // Use this for the Google Cloud project ID
 
 const analyticsDataClient = new BetaAnalyticsDataClient({
-  credentials: credentials,
-  projectId: propertyId
+  credentials: credentials,  // Use credentials for authentication
+  projectId: projectId       // Use project_id for authenticating the Google Cloud project
 });
 
 // Customer Acquisition Total & New Users
 async function runNewVsTrueUserReport() {
   try {
     const [response] = await analyticsDataClient.runReport({
-      property: `properties/${propertyId}`,
+      property: `properties/${propertyId}`,  // Correct use of GA4 numeric Property ID here
       dateRanges: [
         {
           startDate: '365daysAgo',
@@ -69,5 +71,5 @@ async function runNewVsTrueUserReport() {
 }
 
 module.exports = {
-  runReport
+  runNewVsTrueUserReport
 };
