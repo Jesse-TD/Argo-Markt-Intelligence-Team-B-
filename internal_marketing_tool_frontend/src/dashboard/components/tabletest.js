@@ -8,6 +8,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
+import HighlightedCard from './HighlightedCard';
 
 const DataTable = () => {
     const [data, setData] = useState([]);
@@ -28,6 +29,8 @@ const DataTable = () => {
         };
         fetchData();
     }, []);
+
+    console.log(data)
 
 
     // If loading or error, display appropriate message
@@ -102,8 +105,14 @@ const DataTable = () => {
             {/* Highcharts component */}
             <Grid size={{ xs: 12, md: 6}}>
                 <Card variant="outlined" sx={{width: '100%'}}>
+                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                 Year of 2024
+                </Typography>
                 <HighchartsReact highcharts={Highcharts} options={chartOptions} />
                 </Card>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, lg: 3 }} sx={{ maxHeight: "175px"}}>
+                <HighlightedCard />
             </Grid>
 
         </Grid>

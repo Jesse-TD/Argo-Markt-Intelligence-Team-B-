@@ -21,8 +21,8 @@ async function runNewVsTrueUserReport() {
       property: `properties/${propertyId}`,  // Correct use of GA4 numeric Property ID here
       dateRanges: [
         {
-          startDate: '365daysAgo',
-          endDate: 'yesterday',
+          startDate: '2024-01-01',
+          endDate: '2024-12-31',
         },
       ],
       dimensions: [
