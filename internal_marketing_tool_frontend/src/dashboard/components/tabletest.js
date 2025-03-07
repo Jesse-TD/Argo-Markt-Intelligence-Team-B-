@@ -94,14 +94,7 @@ const DataTable = () => {
     };
 
     return (
-    <Box sx ={{width: '100%', maxWidth: {sm: '100%', mb: '1700px'} }}>
-      <Typography component="h2" variant="h6" sx={{ mb: 2 }}>Overview</Typography>
-        <Grid
-        container
-        spacing={2}
-        columns={12}
-        sx={{ mb: (theme) => theme.spacing(2) }}
-        >
+    <>
             {/* Highcharts component */}
             <Grid size={{ xs: 12, md: 6}}>
                 <Card variant="outlined" sx={{width: '100%'}}>
@@ -111,12 +104,8 @@ const DataTable = () => {
                 <HighchartsReact highcharts={Highcharts} options={chartOptions} />
                 </Card>
             </Grid>
-            <Grid size={{ xs: 12, sm: 6, lg: 3 }} sx={{ maxHeight: "175px"}}>
-                <HighlightedCard />
-            </Grid>
-
-        </Grid>
-    </Box>
+            
+    </>
     );
 };
 

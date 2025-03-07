@@ -52,7 +52,7 @@ export default function Dashboard(props) {
             }}
           >
             <Header />
-            <DataTable/>
+            
             <MainGrid />
           </Stack>
         </Box>
