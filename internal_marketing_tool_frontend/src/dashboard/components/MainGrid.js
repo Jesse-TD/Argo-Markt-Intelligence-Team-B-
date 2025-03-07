@@ -11,6 +11,7 @@ import HighlightedCard from './HighlightedCard';
 import PageViewsBarChart from './PageViewsBarChart';
 import SessionsChart from './SessionsChart';
 import StatCard from './StatCard';
+import DataTable from './tabletest';
 
 const data = [
   {
@@ -66,6 +67,7 @@ export default function MainGrid() {
         <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
           <HighlightedCard />
         </Grid>
+        <DataTable/>
         <Grid size={{ xs: 12, md: 6 }}>
           <SessionsChart />
         </Grid>
