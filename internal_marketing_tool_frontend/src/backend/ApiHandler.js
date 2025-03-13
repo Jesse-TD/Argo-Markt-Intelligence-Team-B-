@@ -185,6 +185,37 @@ const engagementQueries = {
     }
 };
 
+// FULFILLMENT QUERIES
+const fulfillmentQueries = {
+    // Fulfillment Page Metrics
+    fulfillmentPage: {
+        dimensions: [
+            { name: "month"},
+            { name: "pageTitle" }
+        ],
+        metrics: [
+            { name: "engagementRate"},
+            { name: "userEngagementDuration"},
+            { name: "newUsers"},
+            { name: "totalUsers"},
+            { name: "screenPageViews"}
+        ],
+        dateRanges: [{ // Present that last years worth of data sorted by month
+            startDate: "365daysAgo",
+            endDate: "yesterday"
+        }],
+        dimensionFilter: { 
+            filter: {
+                fieldName: "pageTitle",
+                stringFilter: {
+                    matchType: "CONTAINS",
+                    value: "Omni Fulfillment"
+                }
+            }
+        }
+    }
+};
+
 function runMainDashboard() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -302,6 +333,34 @@ function runEngagementBatch() {
             return [];
         }
     });
+
+    function runFulfillmentBatch() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const [fulfillmentResponseBatch] = yield analyticsDataClient.batchRunReports({
+                    property: `properties/${PROPERTY_ID}`,
+                    requests: Object.values(fulfillmentQueries)
+                });
+                fulfillmentResponseBatch.reports.forEach((report, index) => {
+                    console.log(`Fulfillment Report ${index + 1}:`);
+                    const dimensionHeaders = report.dimensionHeaders.map(header => header.name);
+                    console.log('Dimensions:', dimensionHeaders);
+                    const metricHeaders = report.metricHeaders.map(header => header.name);
+                    console.log('Metrics:', metricHeaders);
+                    report.rows.forEach(row => {
+                        const dimensions = row.dimensionValues.map(dv => dv.value);
+                        console.log('Dimension Values:', dimensions);
+                        const metrics = row.metricValues.map(mv => mv.value);
+                        console.log('Metric Values:', metrics);
+                    });
+                });
+                return fulfillmentResponseBatch;
+            } catch (err) {
+                console.error(`GA4 Data API error: ${err}`);
+                return [];
+            }
+        });
+    }
 }
 
 // runAcquisitionBatch()
