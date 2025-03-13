@@ -188,7 +188,7 @@ const engagementQueries = {
 // FULFILLMENT QUERIES
 const fulfillmentQueries = {
     // Fulfillment Page Metrics
-    fulfillmentPage: {
+    fulfillmentPage: { // Need to filter specifically for webpage "Omni Fulfillment"
         dimensions: [
             { name: "month"},
             { name: "pageTitle" }
@@ -203,16 +203,23 @@ const fulfillmentQueries = {
         dateRanges: [{ // Present that last years worth of data sorted by month
             startDate: "365daysAgo",
             endDate: "yesterday"
-        }],
-        dimensionFilter: { 
-            filter: {
-                fieldName: "pageTitle",
-                stringFilter: {
-                    matchType: "CONTAINS",
-                    value: "Omni Fulfillment"
-                }
-            }
-        }
+        }]
+    },
+
+    fulfillmentVideo: { // video total time is 5:16
+        // Query provides data in terms how how many users get to each percentage interval
+        // To replace % with timestamp math must be done where 100% = 5:16
+        dimensions: [
+            {name: "videoTitle"},
+            {name: "customEvent:video_percent"}
+        ],
+        metrics: [
+            {name: "eventCount"}
+        ],
+        dateRanges: [{
+            startDate: "30daysAgo",
+            endDate: "yesterday"
+        }]
     }
 };
 
