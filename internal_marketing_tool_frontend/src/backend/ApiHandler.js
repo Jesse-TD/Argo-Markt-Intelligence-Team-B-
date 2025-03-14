@@ -22,6 +22,74 @@ const analyticsDataClient = new BetaAnalyticsDataClient({
     projectId: projectId
 });
 
+/**
+ * Dynamic function that provide the query batch for a specific page and video
+ * Also are able to provide a start and end date 
+ * 
+ * Works for all sections besides Averages
+ * 
+ * @param pageTitle
+ * @param videoTitle 
+ * @param dateStart 
+ * @param dateEnd 
+ * 
+ */
+function createBatchQueries(pageTitle, videoTitle, dateStart, dateEnd) {
+    return {
+        // Page Metrics
+        pageMetrics: {
+            dimensions: [
+                { name: "month"},
+                { name: "pageTitle" }
+            ],
+            metrics: [
+                { name: "engagementRate"},
+                { name: "userEngagementDuration"},
+                { name: "newUsers"},
+                { name: "totalUsers"},
+                { name: "screenPageViews"}
+            ],
+            dateRanges: [{
+                startDate: dateStart || "365daysAgo",
+                endDate: dateEnd || "yesterday"
+            }],
+            dimensionFilter: {
+                filter: {
+                    fieldName: "pageTitle",
+                    stringFilter: {
+                        value: pageTitle,
+                        matchType: "EXACT"
+                    }
+                }
+            }
+        },
+
+        // Video Metrics
+        videoMetrics: {
+            dimensions: [
+                {name: "videoTitle"},
+                {name: "customEvent:video_percent"}
+            ],
+            metrics: [
+                {name: "eventCount"}
+            ],
+            dateRanges: [{
+                startDate: dateStart || "30daysAgo",
+                endEnd: dateEnd || "yesterday"
+            }],
+            dimensionFilter: {
+                filter: {
+                    fieldName: "videoTitle",
+                    stringFilter: {
+                        value: videoTitle,
+                        matchType: "EXACT"
+                    }
+                }
+            }
+        }
+    };
+}
+
 // home-main dashboard components
 const mainDashboardQueries = {
     // data reflecting active users during the last week
@@ -185,43 +253,11 @@ const engagementQueries = {
     }
 };
 
-// FULFILLMENT QUERIES
-const fulfillmentQueries = {
-    // Fulfillment Page Metrics
-    fulfillmentPage: { // Need to filter specifically for webpage "Omni Fulfillment"
-        dimensions: [
-            { name: "month"},
-            { name: "pageTitle" }
-        ],
-        metrics: [
-            { name: "engagementRate"},
-            { name: "userEngagementDuration"},
-            { name: "newUsers"},
-            { name: "totalUsers"},
-            { name: "screenPageViews"}
-        ],
-        dateRanges: [{ // Present that last years worth of data sorted by month
-            startDate: "365daysAgo",
-            endDate: "yesterday"
-        }]
-    },
+// EXPERIENCE QUERIES
 
-    fulfillmentVideo: { // video total time is 5:16
-        // Query provides data in terms how how many users get to each percentage interval
-        // To replace % with timestamp math must be done where 100% = 5:16
-        dimensions: [
-            {name: "videoTitle"},
-            {name: "customEvent:video_percent"}
-        ],
-        metrics: [
-            {name: "eventCount"}
-        ],
-        dateRanges: [{
-            startDate: "30daysAgo",
-            endDate: "yesterday"
-        }]
-    }
-};
+// Example usage:
+// const fulfillmentQueries = createBatchQueries("Omni Fulfillment Page", "Omni Fulfillment Video", "28daysAgo", "yesterday");
+// const riskQueries = createBatchQueries("Risk Management Page", "Risk Management Video", "365daysAgo", "yesterday");
 
 // RISK MANAGEMENT QUERIES
 const riskQueries = {
@@ -269,6 +305,11 @@ const salesQueries = {
         dateRanges: [{ startDate: "30daysAgo", endDate: "yesterday" }]
     }
 };
+
+// AVERAGES QUERIES
+const averagesQueries = {
+
+}
 
 function runMainDashboard() {
     return __awaiter(this, void 0, void 0, function* () {
