@@ -223,6 +223,53 @@ const fulfillmentQueries = {
     }
 };
 
+// RISK MANAGEMENT QUERIES
+const riskQueries = {
+    riskPageMetrics: {
+        dimensions: [{ name: "month" }, { name: "pageTitle" }],
+        metrics: [
+            { name: "activeUsers" },
+            { name: "newUsers" },
+            { name: "engagementRate" },
+            { name: "userEngagementDuration" },
+            { name: "bounceRate" }
+        ],
+        dateRanges: [{ startDate: "365daysAgo", endDate: "yesterday" }],
+        orderBys: [{ metric: { metricName: "activeUsers" } }]
+    },
+    riskVideoRetention: {
+        dimensions: [
+            { name: "videoTitle" },
+            { name: "customEvent:video_percent" }
+        ],
+        metrics: [{ name: "eventCount" }],
+        dateRanges: [{ startDate: "30daysAgo", endDate: "yesterday" }]
+    }
+};
+
+// SALES MANAGEMENT QUERIES
+const salesQueries = {
+    salesPageMetrics: {
+        dimensions: [{ name: "month" }, { name: "pageTitle" }],
+        metrics: [
+            { name: "activeUsers" },
+            { name: "newUsers" },
+            { name: "screenPageViews" },
+            { name: "userEngagementDuration" }
+        ],
+        dateRanges: [{ startDate: "365daysAgo", endDate: "yesterday" }],
+        orderBys: [{ metric: { metricName: "screenPageViews" }, desc: true }]
+    },
+    salesVideoRetention: {
+        dimensions: [
+            { name: "videoTitle" },
+            { name: "customEvent:video_percent" }
+        ],
+        metrics: [{ name: "eventCount" }],
+        dateRanges: [{ startDate: "30daysAgo", endDate: "yesterday" }]
+    }
+};
+
 function runMainDashboard() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -369,6 +416,70 @@ function runEngagementBatch() {
         });
     }
 }
+
+function runRiskBatch() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const [riskResponseBatch] = yield analyticsDataClient.batchRunReports({
+                property: `properties/${PROPERTY_ID}`,
+                requests: Object.values(riskQueries)
+            });
+            const results = riskResponseBatch;
+
+            riskResponseBatch.reports.forEach((report, index) => {
+                console.log(`Risk Report ${index + 1}:`);
+                const dimensionHeaders = report.dimensionHeaders.map((header) => header.name);
+                console.log('Dimensions:', dimensionHeaders);
+                const metricHeaders = report.metricHeaders.map((header) => header.name);
+                console.log('Metrics:', metricHeaders);
+                report.rows.forEach((row) => {
+                    const dimensions = row.dimensionValues.map((dv) => dv.value);
+                    console.log('Dimension Values:', dimensions);
+                    const metrics = row.metricValues.map((mv) => mv.value);
+                    console.log('Metric Values:', metrics);
+                });
+            });
+
+            return results;
+        } catch (err) {
+            console.error(`GA4 Data API error (Risk Report): ${err}`);
+            return [];
+        }
+    });
+}
+
+
+function runSalesBatch() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const [salesResponseBatch] = yield analyticsDataClient.batchRunReports({
+                property: `properties/${PROPERTY_ID}`,
+                requests: Object.values(salesQueries)
+            });
+            const results = salesResponseBatch;
+
+            salesResponseBatch.reports.forEach((report, index) => {
+                console.log(`Sales Report ${index + 1}:`);
+                const dimensionHeaders = report.dimensionHeaders.map((header) => header.name);
+                console.log('Dimensions:', dimensionHeaders);
+                const metricHeaders = report.metricHeaders.map((header) => header.name);
+                console.log('Metrics:', metricHeaders);
+                report.rows.forEach((row) => {
+                    const dimensions = row.dimensionValues.map((dv) => dv.value);
+                    console.log('Dimension Values:', dimensions);
+                    const metrics = row.metricValues.map((mv) => mv.value);
+                    console.log('Metric Values:', metrics);
+                });
+            });
+
+            return results;
+        } catch (err) {
+            console.error(`GA4 Data API error (Sales Report): ${err}`);
+            return [];
+        }
+    });
+}
+
 
 // runAcquisitionBatch()
 // runEngagementBatch()
