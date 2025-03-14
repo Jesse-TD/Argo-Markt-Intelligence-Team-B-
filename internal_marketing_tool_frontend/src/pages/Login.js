@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { Box, Button, TextField, Typography, Divider } from "@mui/material";
 import { Google as GoogleIcon } from "@mui/icons-material";
 import { useNavigate } from 'react-router-dom';
-import { auth, provider, signInWithEmailAndPassword } from "../firebase"; 
-import { signInWithPopup } from "firebase/auth";
+import { auth, provider } from "../firebase"; 
+import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth"; 
 
 export default function Login() {
   const navigate = useNavigate();
@@ -33,7 +33,6 @@ export default function Login() {
 
   return (
     <Box sx={{ display: "flex", height: "100vh" }}>
-      {/* Left Area */}
       <Box
         sx={{
           flex: 1,
@@ -49,7 +48,6 @@ export default function Login() {
         <Typography variant="h4" fontWeight="bold">ARGO Data</Typography>
       </Box>
 
-      {/* Right Area */}
       <Box
         sx={{
           flex: 1,

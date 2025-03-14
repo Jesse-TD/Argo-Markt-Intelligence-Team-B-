@@ -58,11 +58,7 @@ export default function Header() {
       <Stack direction="row" sx={{ gap: 1 }}>
         <Search />
         <CustomDatePicker />
-        <Tooltip title="Notifications" placement='bottom'>
-          <MenuButton showBadge aria-label="Open notifications">
-            <NotificationsRoundedIcon />
-          </MenuButton>
-        </Tooltip>
+        
         <Tooltip title="Theme" placement='bottom'>
           <ColorModeIconDropdown />
         </Tooltip>

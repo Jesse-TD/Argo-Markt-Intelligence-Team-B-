@@ -185,44 +185,33 @@ const engagementQueries = {
     }
 };
 
-function runMainDashboard() {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            // note that the batch is provided as an array of RunReportResponse
-            const [mainDashBatch] = yield analyticsDataClient.batchRunReports({
-                property: `properties/${PROPERTY_ID}`,
-                requests: Object.values(mainDashboardQueries)
-            });
-            const results = mainDashBatch;
+async function runMainDashboard() {
+    try {
+        const [response] = await analyticsDataClient.batchRunReports({
+            property: `properties/${PROPERTY_ID}`,
+            requests: Object.values(mainDashboardQueries)
+        });
 
-            // tool to iterate and print the response's body
-            mainDashBatch.reports.forEach((report, index) => {
-                console.log(`Report ${index + 1}:`);
-                // headers
-                const dimensionHeaders = report.dimensionHeaders.map((header) => header.name);
-                console.log('Dimensions:', dimensionHeaders);
-                // contents per header
-                const metricHeaders = report.metricHeaders.map((header) => header.name);
-                console.log('Metrics:', metricHeaders);
-                // prints header: content[]
-                report.rows.forEach((row) => {
-                    // dimensions
-                    const dimensions = row.dimensionValues.map((dv) => dv.value);
-                    console.log('Dimension Values:', dimensions);
-                    // the actual important data
-                    const metrics = row.metricValues.map(mv => mv.value);
-                    console.log('Metric Values:', metrics);
-                });
-            });
+        if (!response.reports) return [];
 
-            return results;
-        }
-        catch (err) {
-            // failure to catch a response from the GA4 API
-            console.error(`GA4 Data API error: ${err}`);
-            return [];
-        }
-    });
+        // Process results into an organized JSON response
+        const results = response.reports.map((report, index) => {
+            return {
+                reportId: index + 1,
+                dimensions: report.dimensionHeaders.map((header) => header.name),
+                metrics: report.metricHeaders.map((header) => header.name),
+                rows: report.rows.map((row) => ({
+                    dimensions: row.dimensionValues.map((dv) => dv.value),
+                    metrics: row.metricValues.map((mv) => mv.value),
+                }))
+            };
+        });
+
+        return results;
+    } catch (err) {
+        console.error("GA4 Data API error:", err);
+        return [];
+    }
 }
 
 function runAcquisitionBatch() {
@@ -303,6 +292,12 @@ function runEngagementBatch() {
         }
     });
 }
+
+module.exports = {
+    runMainDashboard,
+    runAcquisitionBatch,
+    runEngagementBatch
+};
 
 // runAcquisitionBatch()
 // runEngagementBatch()
