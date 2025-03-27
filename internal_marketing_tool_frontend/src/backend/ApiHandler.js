@@ -22,6 +22,74 @@ const analyticsDataClient = new BetaAnalyticsDataClient({
     projectId: projectId
 });
 
+/**
+ * Dynamic function that provide the query batch for a specific page and video
+ * Also are able to provide a start and end date 
+ * 
+ * Works for all sections besides Averages
+ * 
+ * @param pageTitle
+ * @param videoTitle 
+ * @param dateStart 
+ * @param dateEnd 
+ * 
+ */
+function createBatchQueries(pageTitle, videoTitle, dateStart, dateEnd) {
+    return {
+        // Page Metrics
+        pageMetrics: {
+            dimensions: [
+                { name: "month"},
+                { name: "pageTitle" }
+            ],
+            metrics: [
+                { name: "engagementRate"},
+                { name: "userEngagementDuration"},
+                { name: "newUsers"},
+                { name: "totalUsers"},
+                { name: "screenPageViews"}
+            ],
+            dateRanges: [{
+                startDate: dateStart || "365daysAgo",
+                endDate: dateEnd || "yesterday"
+            }],
+            dimensionFilter: {
+                filter: {
+                    fieldName: "pageTitle",
+                    stringFilter: {
+                        value: pageTitle,
+                        matchType: "EXACT"
+                    }
+                }
+            }
+        },
+
+        // Video Metrics
+        videoMetrics: {
+            dimensions: [
+                {name: "videoTitle"},
+                {name: "customEvent:video_percent"}
+            ],
+            metrics: [
+                {name: "eventCount"}
+            ],
+            dateRanges: [{
+                startDate: dateStart || "30daysAgo",
+                endDate: dateEnd || "yesterday"
+            }],
+            dimensionFilter: {
+                filter: {
+                    fieldName: "videoTitle",
+                    stringFilter: {
+                        value: videoTitle,
+                        matchType: "EXACT"
+                    }
+                }
+            }
+        }
+    };
+}
+
 // home-main dashboard components
 const mainDashboardQueries = {
     // data reflecting active users during the last week
@@ -185,34 +253,95 @@ const engagementQueries = {
     }
 };
 
-async function runMainDashboard() {
-    try {
-        const [response] = await analyticsDataClient.batchRunReports({
-            property: `properties/${PROPERTY_ID}`,
-            requests: Object.values(mainDashboardQueries)
-        });
 
-        if (!response.reports) return [];
+// EXPERIENCE QUERIES
 
-        // Process results into an organized JSON response
-        const results = response.reports.map((report, index) => {
-            return {
-                reportId: index + 1,
-                dimensions: report.dimensionHeaders.map((header) => header.name),
-                metrics: report.metricHeaders.map((header) => header.name),
-                rows: report.rows.map((row) => ({
-                    dimensions: row.dimensionValues.map((dv) => dv.value),
-                    metrics: row.metricValues.map((mv) => mv.value),
-                }))
-            };
-        });
+// Example usage:
+// const fulfillmentQueries = createBatchQueries("Omni Fulfillment Page", "Omni Fulfillment Video", "28daysAgo", "yesterday");
+// const riskQueries = createBatchQueries("Risk Management Page", "Risk Management Video", "365daysAgo", "yesterday");
 
-        return results;
-    } catch (err) {
-        console.error("GA4 Data API error:", err);
-        return [];
+// RISK MANAGEMENT QUERIES
+const riskQueries = {
+    riskPageMetrics: {
+        dimensions: [{ name: "month" }, { name: "pageTitle" }],
+        metrics: [
+            { name: "activeUsers" },
+            { name: "newUsers" },
+            { name: "engagementRate" },
+            { name: "userEngagementDuration" },
+            { name: "bounceRate" }
+        ],
+        dateRanges: [{ startDate: "365daysAgo", endDate: "yesterday" }],
+        orderBys: [{ metric: { metricName: "activeUsers" } }]
+    },
+    riskVideoRetention: {
+        dimensions: [
+            { name: "videoTitle" },
+            { name: "customEvent:video_percent" }
+        ],
+        metrics: [{ name: "eventCount" }],
+        dateRanges: [{ startDate: "30daysAgo", endDate: "yesterday" }]
     }
+};
+
+// SALES MANAGEMENT QUERIES
+const salesQueries = {
+    salesPageMetrics: {
+        dimensions: [{ name: "month" }, { name: "pageTitle" }],
+        metrics: [
+            { name: "activeUsers" },
+            { name: "newUsers" },
+            { name: "screenPageViews" },
+            { name: "userEngagementDuration" }
+        ],
+        dateRanges: [{ startDate: "365daysAgo", endDate: "yesterday" }],
+        orderBys: [{ metric: { metricName: "screenPageViews" }, desc: true }]
+    },
+    salesVideoRetention: {
+        dimensions: [
+            { name: "videoTitle" },
+            { name: "customEvent:video_percent" }
+        ],
+        metrics: [{ name: "eventCount" }],
+        dateRanges: [{ startDate: "30daysAgo", endDate: "yesterday" }]
+    }
+};
+
+// AVERAGES QUERIES
+const averagesQueries = {
+
 }
+
+function runMainDashboard() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const [response] = yield analyticsDataClient.batchRunReports({
+                property: `properties/${PROPERTY_ID}`,
+                requests: Object.values(mainDashboardQueries)
+            });
+
+            if (!response.reports) return [];
+
+            const results = response.reports.map((report, index) => {
+                return {
+                    reportId: index + 1,
+                    dimensions: report.dimensionHeaders.map((header) => header.name),
+                    metrics: report.metricHeaders.map((header) => header.name),
+                    rows: report.rows.map((row) => ({
+                        dimensions: row.dimensionValues.map((dv) => dv.value),
+                        metrics: row.metricValues.map((mv) => mv.value),
+                    }))
+                };
+            });
+
+            return results;
+        } catch (err) {
+            console.error("GA4 Data API error:", err);
+            return [];
+        }
+    });
+}
+
 
 function runAcquisitionBatch() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -291,13 +420,109 @@ function runEngagementBatch() {
             return [];
         }
     });
+
+    function runFulfillmentBatch() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const [fulfillmentResponseBatch] = yield analyticsDataClient.batchRunReports({
+                    property: `properties/${PROPERTY_ID}`,
+                    requests: Object.values(fulfillmentQueries)
+                });
+                fulfillmentResponseBatch.reports.forEach((report, index) => {
+                    console.log(`Fulfillment Report ${index + 1}:`);
+                    const dimensionHeaders = report.dimensionHeaders.map(header => header.name);
+                    console.log('Dimensions:', dimensionHeaders);
+                    const metricHeaders = report.metricHeaders.map(header => header.name);
+                    console.log('Metrics:', metricHeaders);
+                    report.rows.forEach(row => {
+                        const dimensions = row.dimensionValues.map(dv => dv.value);
+                        console.log('Dimension Values:', dimensions);
+                        const metrics = row.metricValues.map(mv => mv.value);
+                        console.log('Metric Values:', metrics);
+                    });
+                });
+                return fulfillmentResponseBatch;
+            } catch (err) {
+                console.error(`GA4 Data API error: ${err}`);
+                return [];
+            }
+        });
+    }
+}
+
+function runRiskBatch() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const [riskResponseBatch] = yield analyticsDataClient.batchRunReports({
+                property: `properties/${PROPERTY_ID}`,
+                requests: Object.values(riskQueries)
+            });
+            const results = riskResponseBatch;
+
+            riskResponseBatch.reports.forEach((report, index) => {
+                console.log(`Risk Report ${index + 1}:`);
+                const dimensionHeaders = report.dimensionHeaders.map((header) => header.name);
+                console.log('Dimensions:', dimensionHeaders);
+                const metricHeaders = report.metricHeaders.map((header) => header.name);
+                console.log('Metrics:', metricHeaders);
+                report.rows.forEach((row) => {
+                    const dimensions = row.dimensionValues.map((dv) => dv.value);
+                    console.log('Dimension Values:', dimensions);
+                    const metrics = row.metricValues.map((mv) => mv.value);
+                    console.log('Metric Values:', metrics);
+                });
+            });
+
+            return results;
+        } catch (err) {
+            console.error(`GA4 Data API error (Risk Report): ${err}`);
+            return [];
+        }
+    });
+}
+
+
+function runSalesBatch() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const [salesResponseBatch] = yield analyticsDataClient.batchRunReports({
+                property: `properties/${PROPERTY_ID}`,
+                requests: Object.values(salesQueries)
+            });
+            const results = salesResponseBatch;
+
+            salesResponseBatch.reports.forEach((report, index) => {
+                console.log(`Sales Report ${index + 1}:`);
+                const dimensionHeaders = report.dimensionHeaders.map((header) => header.name);
+                console.log('Dimensions:', dimensionHeaders);
+                const metricHeaders = report.metricHeaders.map((header) => header.name);
+                console.log('Metrics:', metricHeaders);
+                report.rows.forEach((row) => {
+                    const dimensions = row.dimensionValues.map((dv) => dv.value);
+                    console.log('Dimension Values:', dimensions);
+                    const metrics = row.metricValues.map((mv) => mv.value);
+                    console.log('Metric Values:', metrics);
+                });
+            });
+
+            return results;
+        } catch (err) {
+            console.error(`GA4 Data API error (Sales Report): ${err}`);
+            return [];
+        }
+    });
 }
 
 module.exports = {
     runMainDashboard,
     runAcquisitionBatch,
-    runEngagementBatch
+    runEngagementBatch,
+    runRiskBatch,
+    runSalesBatch,
+    // runFulfillmentBatch (if you're using it)
 };
+
+
 
 // runAcquisitionBatch()
 // runEngagementBatch()
