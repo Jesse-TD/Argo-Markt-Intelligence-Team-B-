@@ -1,7 +1,15 @@
 const express = require('express');
 const cors = require('cors');  // Import cors
 const { runNewVsTrueUserReport } = require('./QueryManager');
-const { runMainDashboard, runAcquisitionBatch, runEngagementBatch } = require('./ApiHandler');
+// GA4 Analytics Handlers
+const {
+  runMainDashboard,
+  runAcquisitionBatch,
+  runEngagementBatch,
+  runRiskBatch,
+  runSalesBatch,
+  createBatchQueries //Required for /api/dynamic-report
+} = require('./ApiHandler');
 const app = express();
 
 // Enable CORS for all routes
@@ -24,8 +32,10 @@ app.get('/api/report', async (req, res) => {
 // this will create the end point needed for the maindashboard
 // ✅ Route: Fetch Main Dashboard Data
 app.get("/api/main-dashboard", async (req, res) => {
+  const { start = "7daysAgo", end = "yesterday" } = req.query;
+
   try {
-      const data = await runMainDashboard();
+      const data = await runMainDashboard(start, end);
       res.json(data);
   } catch (error) {
       console.error("Error fetching main dashboard data:", error);
@@ -51,6 +61,42 @@ app.get("/api/engagement", async (req, res) => {
       res.json(data);
   } catch (error) {
       console.error("Error fetching engagement data:", error);
+      res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.get("/api/dynamic-report", async (req, res) => {
+  const { pageTitle, videoTitle, start, end } = req.query;
+
+  // Validate required params
+  if (!pageTitle || !videoTitle) {
+      return res.status(400).json({ error: "Missing required query params: pageTitle or videoTitle" });
+  }
+
+  try {
+      // Create dynamic batch of queries
+      const queryBatch = createBatchQueries(pageTitle, videoTitle, start, end);
+
+      const [response] = await analyticsDataClient.batchRunReports({
+          property: `properties/${PROPERTY_ID}`,
+          requests: Object.values(queryBatch),
+      });
+
+      if (!response.reports) return res.json([]);
+
+      const results = response.reports.map((report, index) => ({
+          reportId: index + 1,
+          dimensions: report.dimensionHeaders.map((header) => header.name),
+          metrics: report.metricHeaders.map((header) => header.name),
+          rows: report.rows.map((row) => ({
+              dimensions: row.dimensionValues.map((dv) => dv.value),
+              metrics: row.metricValues.map((mv) => mv.value),
+          })),
+      }));
+
+      res.json(results);
+  } catch (error) {
+      console.error("Error fetching dynamic GA4 report:", error);
       res.status(500).json({ error: "Internal server error" });
   }
 });
