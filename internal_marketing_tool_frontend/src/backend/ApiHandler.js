@@ -40,6 +40,7 @@ function createBatchQueries(pageTitle, videoTitle, dateStart, dateEnd) {
         pageMetrics: {
             dimensions: [
                 { name: "month"},
+                { name:"year"},
                 { name: "pageTitle" }
             ],
             metrics: [
