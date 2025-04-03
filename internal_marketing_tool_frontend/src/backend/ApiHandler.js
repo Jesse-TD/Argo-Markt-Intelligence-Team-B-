@@ -516,8 +516,11 @@ module.exports = {
     runEngagementBatch,
     runRiskBatch,
     runSalesBatch,
-    createBatchQueries, 
-};
+    createBatchQueries,
+    analyticsDataClient,
+    PROPERTY_ID
+  };
+  
 
 
 

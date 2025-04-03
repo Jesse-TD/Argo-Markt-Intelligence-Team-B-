@@ -57,7 +57,6 @@ export default function Header() {
       {/* <NavbarBreadcrumbs /> */}
       <Stack direction="row" sx={{ gap: 1 }}>
         <Search />
-        <CustomDatePicker />
         
         <Tooltip title="Theme" placement='bottom'>
           <ColorModeIconDropdown />
