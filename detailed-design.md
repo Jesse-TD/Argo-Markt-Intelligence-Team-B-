@@ -119,8 +119,48 @@ Captured in Rose (other tools are also allowed):
 
 ## TRACEABILITY FROM REQUIREMENTS TO DETAILED DESIGN MODEL
 
-Provide a mapping between requirements and the detailed design model. Clearly describe how each requirement in the Requirements Documentation is captured in the design.
+The following table demonstrates how each requirement from the Requirements Documentation is addressed in the detailed design, ensuring complete requirements coverage:
 
+| Requirement ID | Requirement Description | Design Component | Implementation Details |
+|----------------|-------------------------|------------------|------------------------|
+| REQ-1 | User needs to log in with ARGO credentials | - AuthController class<br>- Login UI component<br>- Authentication API endpoints<br>- Sequence diagram: Query Info for Report Section | - JWT-based authentication<br>- Login UI with error handling<br>- Google OAuth integration<br>- Authentication token validation |
+| REQ-2 | User Logout | - AuthController class<br>- Logout UI component<br>- Session management service | - Token invalidation<br>- Session state cleanup<br>- Audit logging<br>- Redirect to login screen |
+| REQ-3 | Request Engagement Metrics | - ApiHandler class<br>- QueryManager class<br>- Dashboard UI components<br>- MainGrid component<br>- Class diagram: Backend Classes | - GA4 API integration<br>- Data transformation services<br>- Metric visualization components<br>- Caching for frequently accessed data |
+| REQ-4 | Report Download | - ReportGenerator class<br>- ReportManager class<br>- Export Service<br>- Sequence diagram: Create Report | - PDF/Excel export functionality<br>- Report templates<br>- Report caching<br>- Export formats with user selection |
+| REQ-5 | GPT Insights | - AiService class<br>- ChatInterface component<br>- AI API endpoints<br>- Sequence diagram: Chat With AI Assistant | - OpenAI API integration<br>- Context-aware queries<br>- Natural language processing<br>- Fallback mechanisms for API failures |
+| NF-REQ-1 | System operational when GA4 API is available | - ApiHandler error handling<br>- Monitoring services<br>- Fallback data caching | - Health check mechanisms<br>- Monitoring dashboards<br>- Graceful error handling<br>- Data caching strategies |
+| NF-REQ-2 | Search results in under 5 seconds | - Query optimization<br>- Result caching<br>- Performance testing framework | - Indexed database queries<br>- Multi-tier caching strategy<br>- Load testing benchmarks<br>- Performance monitoring |
+| NF-REQ-3 | Support 5-10 concurrent users | - Load balancing design<br>- Auto-scaling architecture<br>- Cloud infrastructure | - Elastic scaling policies<br>- Resource optimization<br>- Connection pooling<br>- Request queuing |
+| NF-REQ-4 | UI compliant with ARGO QUADS | - Component library<br>- UI theme providers<br>- Design system integration | - Standardized component usage<br>- Theme consistency<br>- Design token implementation<br>- Responsive layouts |
+
+### Requirement-to-Design Mapping Process
+
+1. **Authentication Requirements (REQ-1, REQ-2)**
+   - The design incorporates the AuthController class with specific methods for authenticating users, validating tokens, and revoking sessions
+   - The login and logout sequence flows are clearly defined in the sequence diagrams
+   - Security design includes JWT tokens and secure password handling as specified
+
+2. **Data Processing Requirements (REQ-3)**
+   - The ApiHandler and QueryManager classes are designed specifically to handle GA4 API integration
+   - Data transformation components handle the conversion of raw analytics data into usable formats
+   - Caching mechanisms are implemented to optimize performance for frequently accessed metrics
+
+3. **Reporting Requirements (REQ-4)**
+   - The ReportGenerator and ReportManager classes provide the functionality for generating and exporting reports
+   - The sequence diagram for report creation shows the complete flow from user selection to delivery
+   - Export options support both PDF and Excel formats as required
+
+4. **AI Integration Requirements (REQ-5)**
+   - The AiService class manages integration with the OpenAI GPT API
+   - The Chat With AI Assistant sequence diagram outlines the process for natural language queries
+   - Error handling mechanisms address potential API failures as specified
+
+5. **Non-Functional Requirements**
+   - Performance requirements (NF-REQ-2, NF-REQ-3) are addressed through caching, load balancing, and cloud architecture
+   - UI compliance (NF-REQ-4) is ensured through the implementation of ARGO's QUADS design system
+   - System availability (NF-REQ-1) is maintained through monitoring and fallback mechanisms
+
+This traceability matrix ensures that every requirement identified in the Requirements Documentation is implemented in the detailed design, providing clear linkage between user needs and the technical solution.
 
 ## ENGINEERING STANDARDS AND MULTIPLE CONSTRAINTS
 
