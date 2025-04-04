@@ -31,8 +31,6 @@ This document presents the detailed design specifications for the Marketing Inte
 
 - [ABSTRACT](#abstract)
 - [TABLE OF CONTENTS](#table-of-contents)
-- [LIST OF FIGURES](#list-of-figures)
-- [LIST OF TABLES](#list-of-tables)
 - [INTRODUCTION](#introduction)
 - [GUI (Graphical User Interface) Design](#gui-graphical-user-interface-design)
 - [STATIC MODEL CLASS DIAGRAMS](#static-model-class-diagrams)
@@ -42,18 +40,6 @@ This document presents the detailed design specifications for the Marketing Inte
 - [EVIDENCE THE DESIGN MODEL HAS BEEN PLACED UNDER CONFIGURATION MANAGEMENT](#evidence-the-design-model-has-been-placed-under-configuration-management)
 - [ENGINEERING STANDARDS AND MULTIPLE CONSTRAINTS](#engineering-standards-and-multiple-constraints)
 - [ADDITIONAL REFERENCES](#additional-references)
-
----
-
-## LIST OF FIGURES
-
-*(List of figures, if applicable)*
-
----
-
-## LIST OF TABLES
-
-*(List of tables, if applicable)*
 
 ---
 
