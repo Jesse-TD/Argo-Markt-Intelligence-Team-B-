@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "llamaindex": "^0.9.15",
+    "openai": "^4.91.1"
+  }
+}
