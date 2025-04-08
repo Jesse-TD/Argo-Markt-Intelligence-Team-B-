@@ -70,5 +70,5 @@ async function getLLMResponse(user_query: string) {
 }
 
 async function fetchGA4Data(metric: any, dateRange: any) {
-    const report = await analyticsDataClient.runRerport()
+    const report = await analyticsDataClient.runReport()
 }
