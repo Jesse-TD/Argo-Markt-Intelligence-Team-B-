@@ -5,7 +5,7 @@ const { BetaAnalyticsDataClient } = require("@google-analytics/data");
 const ga4creds = require("./credentials.json");
 
 const projectId = ga4creds.project_id;
-const cache = new NodeCache({ stdTTL: 3600 }); // Cache for 1 hour
+const cache = new NodeCache({ stdTTL: 1800 }); 
 
 const llm = new OpenAI({
   apiKey: creds.API_KEY
