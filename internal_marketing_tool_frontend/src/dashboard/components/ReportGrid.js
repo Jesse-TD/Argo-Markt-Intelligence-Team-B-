@@ -101,18 +101,34 @@ export default function ReportGrid() {
   const [endDate, setEndDate] = useState("2025-04-01");
 
   const videoTitles = [
-    "Delivering Service Excellence",
+    "Customer Acquisition",
     "Customer Engagement",
     "Omni Fulfillment",
+    "Elevating the Customer Experience",
     "Safe and Sound Risk Mitigation",
+    "Driving Sales Management Success with ARGO",
+    "Delivering Service Excellence"
   ];
 
   const pageTitles = [
-    "Customer Acquisition",
-    "Connects Customer Engagement - ARGO Data",
-    "Connects Omni Fulfillment - ARGO Data",
-    "Customer Experience - ARGO Data",
+    "Need: Customer Acquisition - ARGO Data",
+    "Need: Customer Engagement - ARGO Data",
+    "Need: Fulfillment - ARGO Data",
+    "Need: Customer Experience - Argo Data",
+    "Need: Risk Management - ARGO Data",
+    "Need: Sales Management - ARGO Data",
+    "Need: Service - ARGO Data"
   ];
+
+  const sectionNames = [
+    "Customer Acquisition",
+    "Customer Engagement",
+    "Fulfillment",
+    "Customer Experience",
+    "Risk Management",
+    "Sales Management",
+    "Service"
+  ]
 
   const fetchData = async (start, end) => {
     setLoading(true);
@@ -220,7 +236,7 @@ export default function ReportGrid() {
               <Grid item xs={12} key={`pair-${i}`}>
                 <Box sx={{ width: "100%", px: 2 }}>
                   <Typography variant="h6" sx={{ mb: 1, color: "#01579B"}}>
-                    {pair.pageTitle} &mdash; {pair.videoTitle}
+                      {sectionNames[i]}
                   </Typography>
 
                   <Grid container spacing={4}>
