@@ -40,6 +40,7 @@ function createBatchQueries(pageTitle, videoTitle, dateStart, dateEnd) {
         pageMetrics: {
             dimensions: [
                 { name: "month"},
+                { name:"year"},
                 { name: "pageTitle" }
             ],
             metrics: [
@@ -90,62 +91,58 @@ function createBatchQueries(pageTitle, videoTitle, dateStart, dateEnd) {
     };
 }
 
-// home-main dashboard components
-const mainDashboardQueries = {
-    // data reflecting active users during the last week
-    newVsActiveUsers: {
-        dimensions:[{name:"date"}],
-        metrics:[{name:"activeUsers"},
-            {name:"keyEvents"},
-            {name:"newUsers"},
-            {name:"userEngagementDuration"}
-        ],
-        dateRanges:[{
-            startDate:"7daysAgo",
-            endDate:"yesterday"}
-        ],
-        orderBys:[{
-            metric:{metricName:"activeUsers"},
-            desc:true
-        }], 
-        metricAggregations:["TOTAL"]
-    },
+function getMainDashboardQueries(startDate = "7daysAgo", endDate = "yesterday") {
+    return {
+        // Active users over time
+        newVsActiveUsers: {
+            dimensions: [{ name: "date" }],
+            metrics: [
+                { name: "activeUsers" },
+                { name: "keyEvents" },
+                { name: "newUsers" },
+                { name: "userEngagementDuration" }
+            ],
+            dateRanges: [{ startDate, endDate }],
+            orderBys: [{
+                metric: { metricName: "activeUsers" },
+                desc: true
+            }],
+            metricAggregations: ["TOTAL"]
+        },
 
-    //active users in the past half hour, will have to filter this into a better time window though
-    past30minutes: {
-        dimensions:[{name:"country"},{name:"dateHourMinute"}],
-        metrics:[{name:"activeUsers"}],
-        dateRanges:[{
-            startDate:"today",
-            endDate:"today"}
-        ],
-        orderBys:[{
-            metric:{metricName:"activeUsers"},
-            desc:true
-        }],
-        metricAggregations:["TOTAL"]
-    },
+        // Past 30 minutes activity — stays static
+        past30minutes: {
+            dimensions: [{ name: "country" }, { name: "dateHourMinute" }],
+            metrics: [{ name: "activeUsers" }],
+            dateRanges: [{ startDate: "today", endDate: "today" }],
+            orderBys: [{
+                metric: { metricName: "activeUsers" },
+                desc: true
+            }],
+            metricAggregations: ["TOTAL"]
+        },
 
-    // demographic details: Country
-    activeByCountryId: {
-        dimensions:[{name:"country"}],
-        metrics:[{name:"activeUsers"},
-            {name:"engagedSessions"},
-            {name:"engagementRate"},
-            {name:"eventCount"},
-            {name:"newUsers"},
-            {name:"totalRevenue"},
-            {name:"userKeyEventRate"}
-        ],
-        dateRanges:[{
-            startDate:"28daysAgo",
-            endDate:"yesterday"
-        }],
-        orderBys:[{
-            metric:{metricName:"activeUsers"}
-        }],
-        metricAggregations:["TOTAL"]}
+        // Country breakdown
+        activeByCountryId: {
+            dimensions: [{ name: "country" }],
+            metrics: [
+                { name: "activeUsers" },
+                { name: "engagedSessions" },
+                { name: "engagementRate" },
+                { name: "eventCount" },
+                { name: "newUsers" },
+                { name: "totalRevenue" },
+                { name: "userKeyEventRate" }
+            ],
+            dateRanges: [{ startDate, endDate }],
+            orderBys: [{
+                metric: { metricName: "activeUsers" }
+            }],
+            metricAggregations: ["TOTAL"]
+        }
+    };
 }
+
 
 //collection of user/customer acquisition Queries to run as batch
 const acquisitionQueries = {
@@ -312,27 +309,27 @@ const averagesQueries = {
 
 }
 
-function runMainDashboard() {
+function runMainDashboard(startDate = "7daysAgo", endDate = "yesterday") {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            const queries = getMainDashboardQueries(startDate, endDate);
+
             const [response] = yield analyticsDataClient.batchRunReports({
                 property: `properties/${PROPERTY_ID}`,
-                requests: Object.values(mainDashboardQueries)
+                requests: Object.values(queries)
             });
 
             if (!response.reports) return [];
 
-            const results = response.reports.map((report, index) => {
-                return {
-                    reportId: index + 1,
-                    dimensions: report.dimensionHeaders.map((header) => header.name),
-                    metrics: report.metricHeaders.map((header) => header.name),
-                    rows: report.rows.map((row) => ({
-                        dimensions: row.dimensionValues.map((dv) => dv.value),
-                        metrics: row.metricValues.map((mv) => mv.value),
-                    }))
-                };
-            });
+            const results = response.reports.map((report, index) => ({
+                reportId: index + 1,
+                dimensions: report.dimensionHeaders.map(header => header.name),
+                metrics: report.metricHeaders.map(header => header.name),
+                rows: report.rows.map(row => ({
+                    dimensions: row.dimensionValues.map(dv => dv.value),
+                    metrics: row.metricValues.map(mv => mv.value)
+                }))
+            }));
 
             return results;
         } catch (err) {
@@ -341,6 +338,7 @@ function runMainDashboard() {
         }
     });
 }
+
 
 
 function runAcquisitionBatch() {
@@ -519,8 +517,11 @@ module.exports = {
     runEngagementBatch,
     runRiskBatch,
     runSalesBatch,
-    // runFulfillmentBatch (if you're using it)
-};
+    createBatchQueries,
+    analyticsDataClient,
+    PROPERTY_ID
+  };
+  
 
 
 
