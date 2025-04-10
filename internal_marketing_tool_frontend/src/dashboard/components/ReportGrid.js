@@ -80,7 +80,7 @@ const buildChartsForPair = ({ pageTitle, videoTitle, pageReport, videoReport, vi
       {
         name: "Engagement Time",
         data: engagementTimeData,
-        color: ""
+        color: "#01579B"
       }
     ],
     credits: {
