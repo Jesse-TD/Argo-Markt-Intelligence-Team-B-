@@ -19,25 +19,102 @@ const formatMonthYear = (month, year) => {
 };
 
 // Build Highcharts configs for one page/video report pair
-const buildChartsForPair = ({ pageTitle, videoTitle, pageReport, videoReport }) => {
+const buildChartsForPair = ({ pageTitle, videoTitle, pageReport, videoReport, videoLength }) => {
   const categories = pageReport.data.rows.map((row) =>
     formatMonthYear(parseInt(row.dimensions[0]), parseInt(row.dimensions[1]))
   );
+
+  const videoLengthInSec = (() => {
+    const [min, sec] = videoLength.split(":").map(Number);
+    return min * 60 + sec;
+  })();
+
+  const engagementTimeData = videoReport.data.rows.map((row) => {
+    const percentWatched = Number(row.dimensions[1]);
+    const time = Math.round((percentWatched / 100) * videoLengthInSec);
+    const eventCount = Number(row.metrics[0]);
+    return {
+      y: time,
+      eventCount: eventCount
+    };
+  });
+
+  const engagementTimeChart = {
+    chart: { type: "bar" },
+    title: { text: `${videoTitle} - Engagement Time Watched` },
+    xAxis: {
+      categories: videoReport.data.rows.map((r) => Number(r.metrics[0])),
+      title: { text: "Event Count" },
+    },
+    yAxis: {
+      title: { text: "Time Watched (min:sec)" },
+      tickPositions: [
+        0,
+        Math.round(videoLengthInSec * 0.10),
+        Math.round(videoLengthInSec * 0.25),
+        Math.round(videoLengthInSec * 0.50),
+        Math.round(videoLengthInSec * 0.75),
+        videoLengthInSec
+      ],
+      labels: {
+        formatter: function () {
+          const minutes = Math.floor(this.value / 60);
+          const seconds = this.value % 60;
+          return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+      }
+    },
+    tooltip: {
+      shared: true,
+      crosshairs: true,
+      formatter: function () {
+        const point = this.points[0].point;
+        const minutes = Math.floor(point.y / 60);
+        const seconds = point.y % 60;
+        const formatted = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        const eventCount = point.eventCount;
+        return `<b>Event Count: ${eventCount}</b><br/><span style='color:${this.points[0].color}'>●</span> Engagement Time: <b>${formatted}</b>`;
+      }
+    },
+    series: [
+      {
+        name: "Engagement Time",
+        data: engagementTimeData,
+        color: ""
+      }
+    ],
+    credits: {
+      enabled: false
+    }
+  };
 
   return {
     engagementRateChart: {
       chart: { type: "spline" },
       title: { text: `${pageTitle} - Engagement Rate` },
       xAxis: { categories, title: { text: "Month" } },
-      yAxis: { title: { text: "Engagement Rate" } },
-      tooltip: { shared: true, crosshairs: true },
+      yAxis: {
+        title: { text: "Engagement Rate" },
+        max: 100,
+        labels: {
+          formatter: function () { return this.value + "%"; }
+        }
+      },
+      tooltip: {
+        shared: true,
+        crosshairs: true,
+        valueFormatter: function () { return this.y + "%"; }
+      },
       series: [
         {
           name: "Engagement Rate",
-          data: pageReport.data.rows.map((r) => Number(r.metrics[0])),
+          data: pageReport.data.rows.map((r) => Math.round(Number(r.metrics[0]) * 100)),
           color: "#1976D2",
         },
       ],
+      credits: {
+        enabled: false
+      }
     },
     pageViewsChart: {
       chart: { type: "spline" },
@@ -52,6 +129,9 @@ const buildChartsForPair = ({ pageTitle, videoTitle, pageReport, videoReport }) 
           color: "#29B6F6",
         },
       ],
+      credits: {
+        enabled: false
+      }
     },
     totalVsNewUsersChart: {
       chart: { type: "spline" },
@@ -71,6 +151,9 @@ const buildChartsForPair = ({ pageTitle, videoTitle, pageReport, videoReport }) 
           color: "#4FC3F7",
         },
       ],
+      credits: {
+        enabled: false
+      }
     },
     videoRetentionChart: {
       chart: { type: "spline" },
@@ -88,9 +171,14 @@ const buildChartsForPair = ({ pageTitle, videoTitle, pageReport, videoReport }) 
           color: "#01579B",
         },
       ],
+      credits: {
+        enabled: false
+      }
     },
+    engagementTimeChart
   };
 };
+
 
 export default function ReportGrid() {
   const [reportPairs, setReportPairs] = useState([]);
@@ -128,6 +216,16 @@ export default function ReportGrid() {
     "Risk Management",
     "Sales Management",
     "Service"
+  ]
+
+  const videoLengths = [
+    "6:41",
+    "3:08",
+    "5:17",
+    "5:07",
+    "5:22",
+    "3:31",
+    "4:10"
   ]
 
   const fetchData = async (start, end) => {
@@ -187,7 +285,7 @@ export default function ReportGrid() {
 
       {/* Date Range Form */}
       <Box sx={{ mb: 4, px: 2 }}>
-        <Typography variant="h3" sx={{ mb: 1 }}>
+        <Typography variant="h3" sx={{ mb: 1, color:'#01579B'}}>
           Set Date Range
         </Typography>
         <form
@@ -231,44 +329,53 @@ export default function ReportGrid() {
       ) : (
         <Grid container spacing={6}>
           {reportPairs.map((pair, i) => {
-            const charts = buildChartsForPair(pair);
+            const charts = buildChartsForPair({...pair, videoLength: videoLengths[i]});
             return (
               <Grid item xs={12} key={`pair-${i}`}>
                 <Box sx={{ width: "100%", px: 2 }}>
+                <Card variant="outlined" sx={{border:'1px solid', width: '100%'}}>
                   <Typography variant="h6" sx={{ mb: 1, color: "#01579B"}}>
                       {sectionNames[i]}
                   </Typography>
 
-                  <Grid container spacing={4}>
-                    <Grid item xs={12} sm={6} md={6}>
-                      <Box sx={{ maxWidth: 550, mx: "auto" }}>
+                  <Grid container spacing={3}>
+                    <Grid item lg={4} xs={12} sm={6} md={4}>
+                      <Box sx={{ maxWidth: 525, mx: "auto" }}>
                         <Card variant="outlined" sx={{width: '100%'}}>
                           <HighchartsReact highcharts={Highcharts} options={charts.engagementRateChart} />
                         </Card>
                       </Box>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={6}>
-                      <Box sx={{ maxWidth: 550, mx: "auto" }}>
+                    <Grid item lg={4} xs={12} sm={6} md={6}>
+                      <Box sx={{ maxWidth: 525, mx: "auto" }}>
                         <Card variant="outlined" sx={{width: '100%'}}>
                           <HighchartsReact highcharts={Highcharts} options={charts.pageViewsChart} />
                         </Card>
                       </Box>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={6}>
-                      <Box sx={{ maxWidth: 550, mx: "auto" }}>
+                    <Grid item lg={4} xs={12} sm={6} md={6}>
+                      <Box sx={{ maxWidth: 525, mx: "auto" }}>
                         <Card variant="outlined" sx={{width: '100%'}}>
                           <HighchartsReact highcharts={Highcharts} options={charts.totalVsNewUsersChart} />
                         </Card>
                       </Box>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={6}>
-                      <Box sx={{ maxWidth: 550, mx: "auto" }}>
+                    <Grid item lg={4} xs={12} sm={6} md={6}>
+                      <Box sx={{ maxWidth: 525, mx: "auto" }}>
                         <Card variant="outlined" sx={{width: '100%'}}>
                           <HighchartsReact highcharts={Highcharts} options={charts.videoRetentionChart} />
                         </Card>
                       </Box>
                     </Grid>
+                    <Grid item lg={4} xs={12} sm={6} md={6}>
+                      <Box sx={{ maxWidth: 525, mx: "auto" }}>
+                        <Card variant="outlined" sx={{ width: "100%" }}>
+                          <HighchartsReact highcharts={Highcharts} options={charts.engagementTimeChart} />
+                        </Card>
+                      </Box>
+                    </Grid>
                   </Grid>
+                  </Card>
                 </Box>
               </Grid>
             );

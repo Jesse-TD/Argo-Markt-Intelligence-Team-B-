@@ -11,6 +11,7 @@ import Grid from '@mui/material/Grid2';
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import HighlightedCard from "./HighlightedCard";
+import Box from "@mui/material/Box";
 
 const DashboardTables = () => {
   const [chartData, setChartData] = useState([]);
@@ -63,7 +64,10 @@ const DashboardTables = () => {
     title: { text: "New Users" },
     xAxis: { categories: chartData.map(entry => formatDate(entry.date)), visible: false },
     yAxis: { title: { text: "Users" }, visible: false },
-    series: [{ name: "New Users", data: chartData.map(e => e.newUsers),marker: { enabled: false }, color: "#43A047" }]
+    series: [{ name: "New Users", data: chartData.map(e => e.newUsers),marker: { enabled: false }, color: "#43A047" }],
+    credits: {
+      enabled: false
+    }
   };
 
   const ActiveUsers = {
@@ -71,7 +75,10 @@ const DashboardTables = () => {
     title: { text: "Active Users" },
     xAxis: { categories: chartData.map(entry => formatDate(entry.date)), visible: false },
     yAxis: { title: { text: "Users" }, visible: false },
-    series: [{ name: "Active Users", data: chartData.map(e => e.activeUsers),marker: { enabled: false }, color: "#01579B" }]
+    series: [{ name: "Active Users", data: chartData.map(e => e.activeUsers),marker: { enabled: false }, color: "#01579B" }],
+    credits: {
+      enabled: false
+    }
   };
 
   const KeyEvents = {
@@ -79,7 +86,10 @@ const DashboardTables = () => {
     title: { text: "Key Events" },
     xAxis: { categories: chartData.map(entry => formatDate(entry.date)), visible: false },
     yAxis: { title: { text: "Events" }, visible: false },
-    series: [{ name: "Key Events", data: chartData.map(e => e.keyEvents),marker: { enabled: false }, color: "#1976D2" }]
+    series: [{ name: "Key Events", data: chartData.map(e => e.keyEvents),marker: { enabled: false }, color: "#1976D2" }],
+    credits: {
+      enabled: false
+    }
   };
 
   const UserEngage = {
@@ -92,7 +102,10 @@ const DashboardTables = () => {
       data: chartData.map(e => Math.round(e.userEngagementDuration / 60)),
       marker: { enabled: false },
       color: "#29B6F6"
-    }]
+    }],
+    credits: {
+      enabled: false
+    }
   };
 
   const NewVsActive = {
@@ -104,13 +117,18 @@ const DashboardTables = () => {
     series: [
       { name: "New Users", data: chartData.map(e => e.newUsers), color: "#03A9F4" },
       { name: "Active Users", data: chartData.map(e => e.activeUsers), color: "#01579B" }
-    ]
+    ],
+    credits: {
+      enabled: false
+    }
   };
 
   return (
     <>
+     
       
-      <Typography variant="body2" sx={{ mb: 1 }}>Select Date Range: </Typography>
+      <Grid size={{xs:12 , sm:12, lg:12, md:12}}>
+      <Typography variant="h3" sx={{ mb: 1, color:'#01579B'}}>Set Date Range</Typography>
       <Select
         value={startDate}
         onChange={(e) => setStartDate(e.target.value)}
@@ -122,6 +140,7 @@ const DashboardTables = () => {
         <MenuItem value="30daysAgo">Last 30 Days</MenuItem>
         <MenuItem value="365daysAgo">Last Year</MenuItem>
       </Select>
+      </Grid>
 
       <Grid size={{ xs: 5, sm: 6, lg: 3 }}>
         <Card variant="outlined" sx={{ maxHeight: '200px', height: '100%', flexGrow: 1 , width: '100%'}}>
@@ -151,6 +170,7 @@ const DashboardTables = () => {
       <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
         <HighlightedCard />
       </Grid>
+      
     </>
   );
 };
