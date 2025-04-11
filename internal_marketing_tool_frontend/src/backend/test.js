@@ -3,7 +3,6 @@ const NodeCache = require("node-cache");
 const creds = require("./openAi_creds.json");
 const { BetaAnalyticsDataClient } = require("@google-analytics/data");
 const ga4creds = require("./credentials.json");
-const { deserialize } = require("@xata.io/client");
 
 const PROPERTY_ID = '324172901';
 const projectId = ga4creds.project_id;
