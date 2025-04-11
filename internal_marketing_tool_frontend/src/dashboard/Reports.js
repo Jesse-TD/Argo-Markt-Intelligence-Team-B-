@@ -10,6 +10,7 @@ import MainGrid from './components/MainGrid';
 import SideMenu from './components/SideMenu';
 import AppTheme from '../shared-theme/AppTheme';
 import ReportGrid from './components/ReportGrid';
+import LLMChatPanel from './components/LLMChatPanel';
 import {
   chartsCustomizations,
   dataGridCustomizations,
@@ -52,7 +53,7 @@ export default function Reports(props) {
             }}
           >
             <Header />
-            
+            <LLMChatPanel />
             <ReportGrid />
           </Stack>
         </Box>

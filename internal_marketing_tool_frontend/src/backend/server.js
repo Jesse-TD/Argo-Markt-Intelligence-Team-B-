@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const bodyParser = require('body-parser');
 const { runNewVsTrueUserReport } = require('./QueryManager');
 
 // GA4 Analytics Handlers
@@ -10,20 +11,21 @@ const {
   runRiskBatch,
   runSalesBatch,
   createBatchQueries,
-  analyticsDataClient, // ✅ new
-  PROPERTY_ID           // ✅ new
+  analyticsDataClient,
+  PROPERTY_ID
 } = require('./ApiHandler');
 
+// GPT LLM Imports
+const { getLLMResponse } = require('./test'); // change this path to your actual backend file if different
 
 const app = express();
-
-// Enable CORS for all routes
-app.use(cors());
-
-// Set the port (either from environment variable or default to 5000)
 const port = 5000;
 
-// API route that your frontend will call to fetch the GA4 report data
+// Middleware
+app.use(cors());
+app.use(bodyParser.json());
+
+// Reports
 app.get('/api/report', async (req, res) => {
   try {
     const reportData = await runNewVsTrueUserReport();
@@ -34,7 +36,6 @@ app.get('/api/report', async (req, res) => {
   }
 });
 
-// ✅ Route: Fetch Main Dashboard Data
 app.get("/api/main-dashboard", async (req, res) => {
   const { start = "7daysAgo", end = "yesterday" } = req.query;
 
@@ -47,7 +48,6 @@ app.get("/api/main-dashboard", async (req, res) => {
   }
 });
 
-// ✅ Route: Fetch Acquisition Data
 app.get("/api/acquisition", async (req, res) => {
   try {
     const data = await runAcquisitionBatch();
@@ -58,7 +58,6 @@ app.get("/api/acquisition", async (req, res) => {
   }
 });
 
-// ✅ Route: Fetch Engagement Data
 app.get("/api/engagement", async (req, res) => {
   try {
     const data = await runEngagementBatch();
@@ -69,7 +68,7 @@ app.get("/api/engagement", async (req, res) => {
   }
 });
 
-// ✅ Route: Dynamic page + video pairing report
+// Dynamic report
 app.get("/api/dynamic-report", async (req, res) => {
   const { pageTitle, videoTitle, start, end } = req.query;
 
@@ -109,7 +108,30 @@ app.get("/api/dynamic-report", async (req, res) => {
   }
 });
 
-// Start the server
+// ✅ New GPT insight route
+app.post("/api/custom-insight", async (req, res) => {
+  const { query } = req.body;
+  if (!query) return res.status(400).json({ error: "Missing user query." });
+
+  try {
+    const chunks = [];
+    const originalWrite = process.stdout.write;
+
+    process.stdout.write = (chunk) => {
+      chunks.push(chunk);
+    };
+
+    await getLLMResponse(query);
+
+    process.stdout.write = originalWrite;
+
+    res.json({ response: chunks.join('') });
+  } catch (err) {
+    console.error("LLM error:", err);
+    res.status(500).json({ error: "Failed to generate GPT insights." });
+  }
+});
+
 app.listen(port, () => {
   console.log(`🚀 Server is running on port ${port}`);
 });
