@@ -34,16 +34,14 @@ export default function LLMChatPanel() {
         Ask the Analytics Assistant
       </Typography>
       <form onSubmit={handleSubmit}>
-        <TextField
-          fullWidth
-          multiline
-          minRows={3}
-          label="Enter your question..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          variant="outlined"
-          sx={{ mb: 2 }}
-        />
+      <TextField
+      fullWidth
+      label="Enter your question..."
+      value={query}
+      onChange={(e) => setQuery(e.target.value)}
+      variant="outlined"
+      sx={{ mb: 2 }}
+      />
         <Button type="submit" variant="contained" color="primary" disabled={loading}>
           {loading ? <CircularProgress size={24} color="inherit" /> : "Submit"}
         </Button>

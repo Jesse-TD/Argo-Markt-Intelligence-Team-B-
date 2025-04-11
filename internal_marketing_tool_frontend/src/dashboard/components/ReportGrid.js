@@ -179,6 +179,32 @@ const buildChartsForPair = ({ pageTitle, videoTitle, pageReport, videoReport, vi
   };
 };
 
+const calculateAverages = (pairs) => {
+  let engagementRates = [];
+  let pageViews = [];
+  let newUsers = [];
+  let totalUsers = [];
+
+  for (const pair of pairs) {
+    const rows = pair.pageReport.data.rows;
+    for (const row of rows) {
+      engagementRates.push(Number(row.metrics[0]) * 100);
+      pageViews.push(Number(row.metrics[4]));
+      newUsers.push(Number(row.metrics[2]));
+      totalUsers.push(Number(row.metrics[3]));
+    }
+  }
+
+  const avg = (arr) => arr.reduce((a, b) => a + b, 0) / arr.length || 0;
+
+  return {
+    avgEngagementRate: avg(engagementRates).toFixed(2),
+    avgPageViews: avg(pageViews).toFixed(0),
+    avgNewUsers: avg(newUsers).toFixed(0),
+    avgTotalUsers: avg(totalUsers).toFixed(0),
+  };
+};
+
 
 export default function ReportGrid() {
   const [reportPairs, setReportPairs] = useState([]);
@@ -323,6 +349,51 @@ export default function ReportGrid() {
           </Grid>
         </form>
       </Box>
+
+      {!loading && (
+  <Box sx={{ px: 2, mt: 4 }}>
+    <Typography variant="h5" sx={{ mb: 2, color: '#01579B' }}>
+      Averages Overview
+    </Typography>
+    <Card variant="outlined" sx={{ p: 2 }}>
+      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <thead>
+          <tr>
+            <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', paddingBottom: '8px' }}>Metric</th>
+            <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', paddingBottom: '8px' }}>Average</th>
+          </tr>
+        </thead>
+        <tbody>
+          {(() => {
+            const { avgEngagementRate, avgPageViews, avgNewUsers, avgTotalUsers } = calculateAverages(reportPairs);
+            return (
+              <>
+                <tr>
+                  <td style={{ padding: '8px 0' }}>Avg. Engagement Rate</td>
+                  <td>{avgEngagementRate}%</td>
+                </tr>
+                <tr>
+                  <td style={{ padding: '8px 0' }}>Avg. Page Views</td>
+                  <td>{avgPageViews}</td>
+                </tr>
+                <tr>
+                  <td style={{ padding: '8px 0' }}>Avg. New Users</td>
+                  <td>{avgNewUsers}</td>
+                </tr>
+                <tr>
+                  <td style={{ padding: '8px 0' }}>Avg. Total Users</td>
+                  <td>{avgTotalUsers}</td>
+                </tr>
+              </>
+            );
+          })()}
+        </tbody>
+      </table>
+    </Card>
+  </Box>
+)}
+
+
 
       {loading ? (
         <Typography sx={{ px: 2 }}>Loading reports...</Typography>
