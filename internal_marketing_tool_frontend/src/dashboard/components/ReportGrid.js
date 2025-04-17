@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid2";
 import axios from "axios";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import Copyright from "../internals/components/Copyright";
 import Card from "@mui/material/Card";
+import Copyright from "../internals/components/Copyright";
+import { Collapse, Button } from "@mui/material";
 
 // Format month & year safely using UTC
 const formatMonthYear = (month, year) => {
@@ -205,10 +206,10 @@ const calculateAverages = (pairs) => {
   };
 };
 
-
 export default function ReportGrid() {
   const [reportPairs, setReportPairs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [expandedSections, setExpandedSections] = useState([]); // Tracks expanded sections
 
   // Default range: last year to today
   const [startDate, setStartDate] = useState("2024-04-01");
@@ -235,14 +236,14 @@ export default function ReportGrid() {
   ];
 
   const sectionNames = [
-    "Customer Acquisition",
-    "Customer Engagement",
-    "Fulfillment",
-    "Customer Experience",
-    "Risk Management",
-    "Sales Management",
-    "Service"
-  ]
+    "Customer Acquisition page report",
+    "Customer Engagement page report",
+    "Fulfillment page report",
+    "Customer Experience page report",
+    "Risk Management page report",
+    "Sales Management page report",
+    "Service page report"
+  ];
 
   const videoLengths = [
     "6:41",
@@ -252,7 +253,7 @@ export default function ReportGrid() {
     "5:22",
     "3:31",
     "4:10"
-  ]
+  ];
 
   const fetchData = async (start, end) => {
     setLoading(true);
@@ -305,10 +306,18 @@ export default function ReportGrid() {
     fetchData(startDate, endDate);
   }, []);
 
+  const toggleSection = (index) => {
+    setExpandedSections((prev) => {
+      if (prev.includes(index)) {
+        return prev.filter((i) => i !== index);
+      } else {
+        return [...prev, index];
+      }
+    });
+  };
+
   return (
     <Box sx={{ width: "100%", maxWidth: { sm: "100%", md: "1700px" }, mx: "auto" }}>
-      
-
       {/* Date Range Form */}
       <Box sx={{ mb: 4, px: 2 }}>
         <Typography variant="h3" sx={{ mb: 1, color:'#01579B'}}>
@@ -350,102 +359,114 @@ export default function ReportGrid() {
         </form>
       </Box>
 
+      {/* Averages Overview */}
       {!loading && (
-  <Box sx={{ px: 2, mt: 4 }}>
-    <Typography variant="h5" sx={{ mb: 2, color: '#01579B' }}>
-      Averages Overview
-    </Typography>
-    <Card variant="outlined" sx={{ p: 2 }}>
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr>
-            <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', paddingBottom: '8px' }}>Metric</th>
-            <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', paddingBottom: '8px' }}>Average</th>
-          </tr>
-        </thead>
-        <tbody>
-          {(() => {
-            const { avgEngagementRate, avgPageViews, avgNewUsers, avgTotalUsers } = calculateAverages(reportPairs);
-            return (
-              <>
+        <Box sx={{ px: 2, mt: 4, mb:6 }}>
+          <Card variant="outlined" sx={{ p: 2 , border: '1px solid', width: '100%' }}>
+          <Typography variant="h5" sx={{ mb: 2, color: '#01579B' }}>
+            Averages Overview
+          </Typography>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
                 <tr>
-                  <td style={{ padding: '8px 0' }}>Avg. Engagement Rate</td>
-                  <td>{avgEngagementRate}%</td>
+                  <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', paddingBottom: '8px' }}>Metric</th>
+                  <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', paddingBottom: '8px' }}>Average</th>
                 </tr>
-                <tr>
-                  <td style={{ padding: '8px 0' }}>Avg. Page Views</td>
-                  <td>{avgPageViews}</td>
-                </tr>
-                <tr>
-                  <td style={{ padding: '8px 0' }}>Avg. New Users</td>
-                  <td>{avgNewUsers}</td>
-                </tr>
-                <tr>
-                  <td style={{ padding: '8px 0' }}>Avg. Total Users</td>
-                  <td>{avgTotalUsers}</td>
-                </tr>
-              </>
-            );
-          })()}
-        </tbody>
-      </table>
-    </Card>
-  </Box>
-)}
+              </thead>
+              <tbody>
+                {(() => {
+                  const { avgEngagementRate, avgPageViews, avgNewUsers, avgTotalUsers } = calculateAverages(reportPairs);
+                  return (
+                    <>
+                      <tr>
+                        <td style={{ padding: '8px 0' }}>Avg. Engagement Rate</td>
+                        <td>{avgEngagementRate}%</td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: '8px 0' }}>Avg. Page Views</td>
+                        <td>{avgPageViews}</td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: '8px 0' }}>Avg. New Users</td>
+                        <td>{avgNewUsers}</td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: '8px 0' }}>Avg. Total Users</td>
+                        <td>{avgTotalUsers}</td>
+                      </tr>
+                    </>
+                  );
+                })()}
+              </tbody>
+            </table>
+          </Card>
+        </Box>
+      )}
 
-
-
+      {/* Display Sections */}
       {loading ? (
         <Typography sx={{ px: 2 }}>Loading reports...</Typography>
       ) : (
         <Grid container spacing={6}>
           {reportPairs.map((pair, i) => {
-            const charts = buildChartsForPair({...pair, videoLength: videoLengths[i]});
+            const charts = buildChartsForPair({ ...pair, videoLength: videoLengths[i] });
+
             return (
               <Grid item xs={12} key={`pair-${i}`}>
                 <Box sx={{ width: "100%", px: 2 }}>
-                <Card variant="outlined" sx={{border:'1px solid', width: '100%'}}>
-                  <Typography variant="h6" sx={{ mb: 1, color: "#01579B"}}>
+                  <Card variant="outlined" sx={{ border: '1px solid', width: '100%' }}>
+                    <Typography variant="h6" sx={{ mb: 1, color: "#01579B" }}>
                       {sectionNames[i]}
-                  </Typography>
+                    </Typography>
 
-                  <Grid container spacing={3}>
-                    <Grid item lg={4} xs={12} sm={6} md={4}>
-                      <Box sx={{ maxWidth: 525, mx: "auto" }}>
-                        <Card variant="outlined" sx={{width: '100%'}}>
-                          <HighchartsReact highcharts={Highcharts} options={charts.engagementRateChart} />
-                        </Card>
-                      </Box>
-                    </Grid>
-                    <Grid item lg={4} xs={12} sm={6} md={6}>
-                      <Box sx={{ maxWidth: 525, mx: "auto" }}>
-                        <Card variant="outlined" sx={{width: '100%'}}>
-                          <HighchartsReact highcharts={Highcharts} options={charts.pageViewsChart} />
-                        </Card>
-                      </Box>
-                    </Grid>
-                    <Grid item lg={4} xs={12} sm={6} md={6}>
-                      <Box sx={{ maxWidth: 525, mx: "auto" }}>
-                        <Card variant="outlined" sx={{width: '100%'}}>
-                          <HighchartsReact highcharts={Highcharts} options={charts.totalVsNewUsersChart} />
-                        </Card>
-                      </Box>
-                    </Grid>
-                    <Grid item lg={4} xs={12} sm={6} md={6}>
-                      <Box sx={{ maxWidth: 525, mx: "auto" }}>
-                        <Card variant="outlined" sx={{width: '100%'}}>
-                          <HighchartsReact highcharts={Highcharts} options={charts.videoRetentionChart} />
-                        </Card>
-                      </Box>
-                    </Grid>
-                    <Grid item lg={4} xs={12} sm={6} md={6}>
-                      <Box sx={{ maxWidth: 525, mx: "auto" }}>
-                        <Card variant="outlined" sx={{ width: "100%" }}>
-                          <HighchartsReact highcharts={Highcharts} options={charts.engagementTimeChart} />
-                        </Card>
-                      </Box>
-                    </Grid>
-                  </Grid>
+                    <Button
+                      variant="contained"
+                      onClick={() => toggleSection(i)}
+                      sx={{ marginBottom: "10px", backgroundColor: "#01579B", color: "white" }}
+                    >
+                      {expandedSections.includes(i) ? "Collapse" : "Expand"}
+                    </Button>
+
+                    {/* Collapsible Section */}
+                    <Collapse in={expandedSections.includes(i)}>
+                      <Grid container spacing={3}>
+                        <Grid item lg={4} xs={12} sm={6} md={4}>
+                          <Box sx={{ maxWidth: 525, mx: "auto" }}>
+                            <Card variant="outlined" sx={{ width: '100%' }}>
+                              <HighchartsReact highcharts={Highcharts} options={charts.engagementRateChart} />
+                            </Card>
+                          </Box>
+                        </Grid>
+                        <Grid item lg={4} xs={12} sm={6} md={6}>
+                          <Box sx={{ maxWidth: 525, mx: "auto" }}>
+                            <Card variant="outlined" sx={{ width: '100%' }}>
+                              <HighchartsReact highcharts={Highcharts} options={charts.pageViewsChart} />
+                            </Card>
+                          </Box>
+                        </Grid>
+                        <Grid item lg={4} xs={12} sm={6} md={6}>
+                          <Box sx={{ maxWidth: 525, mx: "auto" }}>
+                            <Card variant="outlined" sx={{ width: '100%' }}>
+                              <HighchartsReact highcharts={Highcharts} options={charts.totalVsNewUsersChart} />
+                            </Card>
+                          </Box>
+                        </Grid>
+                        <Grid item lg={4} xs={12} sm={6} md={6}>
+                          <Box sx={{ maxWidth: 525, mx: "auto" }}>
+                            <Card variant="outlined" sx={{ width: '100%' }}>
+                              <HighchartsReact highcharts={Highcharts} options={charts.videoRetentionChart} />
+                            </Card>
+                          </Box>
+                        </Grid>
+                        <Grid item lg={4} xs={12} sm={6} md={6}>
+                          <Box sx={{ maxWidth: 525, mx: "auto" }}>
+                            <Card variant="outlined" sx={{ width: '100%' }}>
+                              <HighchartsReact highcharts={Highcharts} options={charts.engagementTimeChart} />
+                            </Card>
+                          </Box>
+                        </Grid>
+                      </Grid>
+                    </Collapse>
                   </Card>
                 </Box>
               </Grid>
@@ -458,3 +479,4 @@ export default function ReportGrid() {
     </Box>
   );
 }
+
