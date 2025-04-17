@@ -167,9 +167,6 @@ const DashboardTables = () => {
           <HighchartsReact highcharts={Highcharts} options={NewVsActive} />
         </Card>
       </Grid>
-      <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
-        <HighlightedCard />
-      </Grid>
       
     </>
   );

@@ -49,7 +49,7 @@ export default function LLMChatPanel() {
 
       {response && (
         <Card variant="outlined" sx={{ mt: 4, p: 2, backgroundColor: "#f1f8ff" }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>GPT Response:</Typography>
+          <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>Data Insights:</Typography>
           <Typography sx={{ whiteSpace: "pre-wrap" }}>{response}</Typography>
         </Card>
       )}

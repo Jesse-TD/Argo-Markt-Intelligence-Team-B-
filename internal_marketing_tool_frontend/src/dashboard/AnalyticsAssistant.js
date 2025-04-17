@@ -25,7 +25,7 @@ const xThemeComponents = {
   ...treeViewCustomizations,
 };
 
-export default function Reports(props) {
+export default function Assistant(props) {
   return (
     <AppTheme {...props} themeComponents={xThemeComponents}>
       <CssBaseline enableColorScheme />
@@ -53,8 +53,8 @@ export default function Reports(props) {
             }}
           >
             <Header />
-            {/*<LLMChatPanel />*/}
-            <ReportGrid />
+            <LLMChatPanel />
+            
           </Stack>
         </Box>
       </Box>
