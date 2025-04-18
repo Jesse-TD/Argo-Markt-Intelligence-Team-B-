@@ -77,9 +77,10 @@ export default function AppNavbar() {
           <Tooltip title="Menu" placement='bottom'>
             <MenuButton aria-label="menu" onClick={toggleDrawer(true)}>
               <MenuRoundedIcon />
-            </MenuButton>
-          </Tooltip>
-            <SideMenuMobile open={open} toggleDrawer={toggleDrawer} />
+              </MenuButton>
+              </Tooltip>
+              <SideMenuMobile open={open} toggleDrawer={toggleDrawer} />
+
           
 
         </Stack>
