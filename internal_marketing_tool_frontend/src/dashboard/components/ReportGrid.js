@@ -209,7 +209,7 @@ const calculateAverages = (pairs) => {
 export default function ReportGrid() {
   const [reportPairs, setReportPairs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [expandedSections, setExpandedSections] = useState([]); // Tracks expanded sections
+  const [expandedSections, setExpandedSections] = useState([0]); // Tracks expanded sections
 
   // Default range: last year to today
   const [startDate, setStartDate] = useState("2024-04-01");
