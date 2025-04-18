@@ -128,7 +128,7 @@ const DashboardTables = () => {
      
       
       <Grid size={{xs:12 , sm:12, lg:12, md:12}}>
-      <Typography variant="h3" sx={{ mb: 1, color:'#01579B'}}>Set Date Range</Typography>
+      <Typography variant="h4" sx={{ mb: 1, color:'#01579B'}}>Set Date Range</Typography>
       <Select
         value={startDate}
         onChange={(e) => setStartDate(e.target.value)}

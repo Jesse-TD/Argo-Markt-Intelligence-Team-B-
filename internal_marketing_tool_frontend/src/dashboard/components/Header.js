@@ -6,9 +6,8 @@ import MenuButton from './MenuButton';
 import ColorModeIconDropdown from '../../shared-theme/ColorModeIconDropdown';
 import SideMenu from './SideMenu';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
-import { Tooltip } from '@mui/material';
-
-
+import { Tooltip, Typography } from '@mui/material';
+import { useLocation } from 'react-router-dom';
 import Search from './Search';
 
 // this is the header component/ the div on the top of the app 
@@ -16,7 +15,21 @@ import Search from './Search';
 
 export default function Header() {
   const [open, setOpen] = React.useState(false);
+  const location = useLocation();
   
+  const getPageTitle = () => {
+    switch (location.pathname) {
+      case '/dashboard':
+        return 'Home';
+      case '/reports':
+        return 'Reports';
+      case '/data-insights':
+        return 'Saved Insights';
+      default:
+        return 'Home';
+    }
+  };
+
   const toggleDrawer = (newOpen) => {
     setOpen(newOpen);
   };
@@ -30,14 +43,14 @@ export default function Header() {
         alignItems: { xs: 'flex-start', md: 'center' },
         justifyContent: 'space-between',
         maxWidth: { sm: '100%', md: '1700px' },
-        pt: 1.5,
+        pt: 4,
       }}
       spacing={2}
     >
-
       <Stack direction="row" sx={{gap: 5, alignItems:'center'}}>
-      
-      <img src="/Type=App.svg" alt="App Logo" width="75" height="75" />
+        <Typography variant="h2" sx={{ color: '#01579B', fontWeight: 'bold', fontSize: '3rem' }}>
+          {getPageTitle()}
+        </Typography>
       </Stack>
     </Stack>
   );

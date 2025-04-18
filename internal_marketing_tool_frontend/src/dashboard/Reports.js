@@ -1,5 +1,5 @@
 import * as React from 'react';
-
+import { useState, useEffect } from 'react';
 import { alpha } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
@@ -26,6 +26,40 @@ const xThemeComponents = {
 };
 
 export default function Reports(props) {
+  // Initialize states from localStorage or default to true
+  const [isAssistantOpen, setIsAssistantOpen] = useState(() => {
+    const saved = localStorage.getItem('analyticsAssistant.isOpen');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+  
+  const [isAssistantExpanded, setIsAssistantExpanded] = useState(() => {
+    const saved = localStorage.getItem('analyticsAssistant.isExpanded');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+
+  // Sync with localStorage changes
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const savedOpen = localStorage.getItem('analyticsAssistant.isOpen');
+      const savedExpanded = localStorage.getItem('analyticsAssistant.isExpanded');
+      if (savedOpen !== null) {
+        setIsAssistantOpen(JSON.parse(savedOpen));
+      }
+      if (savedExpanded !== null) {
+        setIsAssistantExpanded(JSON.parse(savedExpanded));
+      }
+    };
+
+    // Listen for storage changes from other components
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
+  const handleAssistantStateChange = (isOpen, isExpanded) => {
+    setIsAssistantOpen(isOpen);
+    setIsAssistantExpanded(isExpanded);
+  };
+
   return (
     <AppTheme {...props} themeComponents={xThemeComponents}>
       <CssBaseline enableColorScheme />
@@ -41,9 +75,11 @@ export default function Reports(props) {
             backgroundColor: theme.vars
               ? `rgba(${theme.vars.palette.background.defaultChannel} / 1)`
               : alpha(theme.palette.background.default, 1),
-            height: '100vh', 
-            overflowY: 'auto', 
+            height: '100vh',
+            overflowY: 'auto',
             overflowX: 'hidden',
+            transition: 'padding-right 0.3s ease-in-out',
+            paddingRight: isAssistantOpen && isAssistantExpanded ? '480px' : '0px',
           })}
         >
           <Box
@@ -59,23 +95,12 @@ export default function Reports(props) {
           </Box>
         </Box>
 
-        {/* GPT Assistant panel (fixed sidebar style) */}
-        <Box
-          sx={{
-            width: 360,
-            height: '100vh',
-            borderLeft: '1px solid',
-            borderColor: 'divider',
-            bgcolor: 'background.paper',
-            display: 'flex',
-            flexDirection: 'column',
-            boxSizing: 'border-box',
-            position: 'sticky', 
-            top: 0,
-          }}
-        >
-          <LLMChatPanel />
-        </Box>
+        {/* Collapsible Chat Panel */}
+        <LLMChatPanel
+          onStateChange={handleAssistantStateChange}
+          defaultOpen={isAssistantOpen}
+          defaultExpanded={isAssistantExpanded}
+        />
       </Box>
     </AppTheme>
   );

@@ -316,8 +316,8 @@ export default function ReportGrid() {
   return (
     <Box sx={{ width: "100%", maxWidth: { sm: "100%", md: "1700px" }, mx: "auto" }}>
       {/* Date Range Form */}
-      <Box sx={{ mb: 4, px: 2 }}>
-        <Typography variant="h3" sx={{ mb: 1, color: '#01579B' }}>
+      <Box sx={{ mb: 4, mt: 6 }}>
+        <Typography variant="h4" sx={{ mb: 1, color: '#01579B' }}>
           Set Date Range
         </Typography>
         <form
@@ -328,29 +328,62 @@ export default function ReportGrid() {
         >
           <Grid container spacing={2} alignItems="center">
             <Grid item>
-              <label htmlFor="start-date">Start Date:</label>
+              <Typography variant="body1" sx={{ color: 'text.secondary', mr: 1 }}>
+                Start Date:
+              </Typography>
             </Grid>
             <Grid item>
               <input
-                id="start-date"
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: '4px',
+                  border: '1px solid #ccc',
+                  backgroundColor: 'transparent',
+                  color: 'inherit',
+                  fontFamily: 'inherit',
+                  fontSize: '1rem',
+                }}
               />
             </Grid>
             <Grid item>
-              <label htmlFor="end-date">End Date:</label>
+              <Typography variant="body1" sx={{ color: 'text.secondary', mx: 1 }}>
+                End Date:
+              </Typography>
             </Grid>
             <Grid item>
               <input
-                id="end-date"
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: '4px',
+                  border: '1px solid #ccc',
+                  backgroundColor: 'transparent',
+                  color: 'inherit',
+                  fontFamily: 'inherit',
+                  fontSize: '1rem',
+                }}
               />
             </Grid>
             <Grid item>
-              <button type="submit">Fetch Reports</button>
+              <Button
+                type="submit"
+                variant="contained"
+                sx={{
+                  backgroundColor: '#01579B',
+                  color: 'white',
+                  '&:hover': {
+                    backgroundColor: '#014477',
+                  },
+                  ml: 2
+                }}
+              >
+                Fetch Reports
+              </Button>
             </Grid>
           </Grid>
         </form>
