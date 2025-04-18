@@ -11,6 +11,7 @@ import Divider from '@mui/material/Divider';
 import SelectContent from './SelectContent';
 import MenuContent from './MenuContent';
 import OptionsMenu from './OptionsMenu';
+import { alpha } from '@mui/material/styles';
 
 const drawerWidth = 240;
 const collapsedWidth = 72;
@@ -22,7 +23,9 @@ const openedMixin = (theme) => ({
     duration: theme.transitions.duration.enteringScreen,
   }),
   overflowX: 'hidden',
-  backgroundColor: '#ffffff',
+  backgroundColor: theme.vars
+    ? `rgba(${theme.vars.palette.background.defaultChannel} / 1)`
+    : alpha(theme.palette.background.default, 1),
 });
 
 const closedMixin = (theme) => ({
@@ -32,7 +35,9 @@ const closedMixin = (theme) => ({
   }),
   overflowX: 'hidden',
   width: collapsedWidth,
-  backgroundColor: '#ffffff',
+  backgroundColor: theme.vars
+    ? `rgba(${theme.vars.palette.background.defaultChannel} / 1)`
+    : alpha(theme.palette.background.default, 1),
 });
 
 const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
@@ -66,7 +71,9 @@ export default function SideMenu() {
       sx={{
         display: { xs: 'none', md: 'block' },
         [`& .${drawerClasses.paper}`]: {
-          backgroundColor: '#ffffff',
+          backgroundColor: (theme) => theme.vars
+            ? `rgba(${theme.vars.palette.background.defaultChannel} / 1)`
+            : alpha(theme.palette.background.default, 1),
           boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.05)',
         },
       }}
