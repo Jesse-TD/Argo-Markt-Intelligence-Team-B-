@@ -31,35 +31,13 @@ export default function Header() {
         justifyContent: 'space-between',
         maxWidth: { sm: '100%', md: '1700px' },
         pt: 1.5,
-        borderBottom: 1
       }}
       spacing={2}
     >
 
       <Stack direction="row" sx={{gap: 5, alignItems:'center'}}>
-      {/* tooltip adds a on hover*/}
-      <Tooltip title="Menu" placement='bottom'>
-        {/* Toggle Button for SideMenu */}
-        <MenuButton 
-          aria-label="Open menu" 
-          onClick={() => toggleDrawer(true)}
-          >
-          <MenuRoundedIcon />
-        </MenuButton>
-      </Tooltip>
-      {/* SideMenu (Collapsible Sidebar) */}
-      <SideMenu open={open} toggleDrawer={toggleDrawer} />
-
+      
       <img src="/Type=App.svg" alt="App Logo" width="75" height="75" />
-      </Stack>
-
-      {/* <NavbarBreadcrumbs /> */}
-      <Stack direction="row" sx={{ gap: 1 }}>
-        <Search />
-        
-        <Tooltip title="Theme" placement='bottom'>
-          <ColorModeIconDropdown />
-        </Tooltip>
       </Stack>
     </Stack>
   );

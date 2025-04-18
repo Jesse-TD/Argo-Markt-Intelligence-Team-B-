@@ -359,7 +359,7 @@ export default function ReportGrid() {
       {/* Averages Overview */}
       {!loading && (
         <Box sx={{ px: 2, mt: 4, mb: 6 }}>
-          <Card variant="outlined" sx={{ p: 2, border: '1px solid', width: '100%' }}>
+          <Card variant="outlined" sx={{ p: 2, width: '100%' }}>
             <Typography variant="h5" sx={{ mb: 2, color: '#01579B' }}>
               Averages Overview
             </Typography>
@@ -411,7 +411,7 @@ export default function ReportGrid() {
             return (
               <Grid item xs={12} key={`pair-${i}`}>
                 <Box sx={{ width: "100%", px: 2 }}>
-                  <Card variant="outlined" sx={{ border: '1px solid', width: '100%' }}>
+                  <Card variant="outlined" sx={{ width: '100%' }}>
                     <Typography variant="h6" sx={{ mb: 1, color: "#01579B" }}>
                       {sectionNames[i]}
                     </Typography>
