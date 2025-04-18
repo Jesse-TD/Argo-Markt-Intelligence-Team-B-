@@ -70,50 +70,81 @@ export default function LLMChatPanel() {
   
 
   return (
-    <Box sx={{ my: 4, px: 2 }}>
-      <Typography variant="h5" sx={{ mb: 2, color: "#01579B" }}>
-        Ask the Analytics Assistant
-      </Typography>
-      <form onSubmit={handleSubmit}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      {/* Header */}
+      <Box sx={{ px: 2, py: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
+        <Typography variant="h6" sx={{ fontWeight: 600, color: '#0077C2' }}>
+          Ask the Analytics Assistant
+        </Typography>
+      </Box>
+  
+      {/* Scrollable chat area */}
+      <Box
+        sx={{
+          flex: 1,
+          overflowY: 'auto',
+          px: 2,
+          py: 2,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 2,
+        }}
+      >
+        {response
+          ? formatResponse(response)
+          : (
+            <Typography variant="body2" sx={{ color: 'text.secondary', fontStyle: 'italic' }}>
+              Try asking something like: "What page has the highest engagement?"
+            </Typography>
+          )}
+      </Box>
+  
+      {/* Sticky input bar */}
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+        sx={{
+          borderTop: '1px solid',
+          borderColor: 'divider',
+          px: 2,
+          py: 2,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
+        }}
+      >
         <TextField
           fullWidth
-          label="Enter your question..."
+          placeholder="Type your question..."
+          variant="outlined"
+          size="small"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          variant="outlined"
           multiline
-          minRows={4}
-          maxRows={6}
+          maxRows={4}
           sx={{
-            mb: 2,
-            minWidth: '900px',
-            width: '100%',
             '& .MuiOutlinedInput-root': {
-              height: 'auto',
-            },
-          }}
-          InputProps={{
-            style: {
-              overflow: 'auto',
-              padding: '10px',
+              borderRadius: 2,
             },
           }}
         />
-        <Button type="submit" variant="contained" color="primary" disabled={loading}>
-          {loading ? <CircularProgress size={24} color="inherit" /> : "Submit"}
+        <Button
+          type="submit"
+          variant="contained"
+          disabled={loading}
+          sx={{
+            borderRadius: 2,
+            fontWeight: 600,
+            textTransform: 'none',
+            minWidth: 80,
+            py: 1,
+          }}
+        >
+          {loading ? <CircularProgress size={20} color="inherit" /> : "Send"}
         </Button>
-      </form>
-
-      {response && (
-        <Card variant="outlined" sx={{ mt: 4, p: 2, backgroundColor: "#f1f8ff" }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-            Data Insights:
-          </Typography>
-          {/* Render the formatted sections */}
-          {formatResponse(response)}
-        </Card>
-      )}
+      </Box>
     </Box>
   );
+  
 }
 

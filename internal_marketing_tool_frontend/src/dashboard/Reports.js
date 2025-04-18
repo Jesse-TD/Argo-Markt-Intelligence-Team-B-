@@ -32,7 +32,8 @@ export default function Reports(props) {
       <Box sx={{ display: 'flex' }}>
         <SideMenu />
         <AppNavbar />
-        {/* Main content */}
+
+        {/* Reports section (scrollable content) */}
         <Box
           component="main"
           sx={(theme) => ({
@@ -40,22 +41,40 @@ export default function Reports(props) {
             backgroundColor: theme.vars
               ? `rgba(${theme.vars.palette.background.defaultChannel} / 1)`
               : alpha(theme.palette.background.default, 1),
-            overflow: 'auto',
+            height: '100vh', 
+            overflowY: 'auto', 
+            overflowX: 'hidden',
           })}
         >
-          <Stack
-            spacing={2}
+          <Box
             sx={{
-              alignItems: 'center',
-              mx: 3,
+              px: 3,
               pb: 5,
               mt: { xs: 8, md: 0 },
+              maxWidth: '100%',
             }}
           >
             <Header />
-            {/*<LLMChatPanel />*/}
             <ReportGrid />
-          </Stack>
+          </Box>
+        </Box>
+
+        {/* GPT Assistant panel (fixed sidebar style) */}
+        <Box
+          sx={{
+            width: 360,
+            height: '100vh',
+            borderLeft: '1px solid',
+            borderColor: 'divider',
+            bgcolor: 'background.paper',
+            display: 'flex',
+            flexDirection: 'column',
+            boxSizing: 'border-box',
+            position: 'sticky', 
+            top: 0,
+          }}
+        >
+          <LLMChatPanel />
         </Box>
       </Box>
     </AppTheme>

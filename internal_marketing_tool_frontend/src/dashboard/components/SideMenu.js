@@ -8,12 +8,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import SelectContent from './SelectContent';
 import MenuContent from './MenuContent';
-import PropTypes from 'prop-types';
-
 import OptionsMenu from './OptionsMenu';
-
-
-// this file contains the information for the menu on the left side of the screen
 
 const drawerWidth = 240;
 
@@ -21,93 +16,62 @@ const Drawer = styled(MuiDrawer)({
   width: drawerWidth,
   flexShrink: 0,
   boxSizing: 'border-box',
-  mt: 10,
   [`& .${drawerClasses.paper}`]: {
     width: drawerWidth,
     boxSizing: 'border-box',
+    backgroundColor: 'background.paper',
   },
 });
 
-function SideMenu({ open, toggleDrawer }) {
+export default function SideMenu() {
   return (
-    <Drawer
-          anchor="left"
-          open={open}
-          onClose={() => toggleDrawer(false)}
-          sx={{
-            zIndex: (theme) => theme.zIndex.drawer + 1,
-            [`& .${drawerClasses.paper}`]: {
-              backgroundImage: 'none',
-              backgroundColor: 'background.paper',
-            },
-          }}
-        >
-      <Drawer
-        variant="permanent"
+    <Drawer variant="permanent">
+      <Box
         sx={{
-          display: { xs: 'none', md: 'block' },
-          [`& .${drawerClasses.paper}`]: {
-            backgroundColor: 'background.paper',
-          },
+          display: 'flex',
+          mt: 'calc(var(--template-frame-height, 0px) + 4px)',
+          p: 1.5,
         }}
       >
-        <Box
-          sx={{
-            display: 'flex',
-            mt: 'calc(var(--template-frame-height, 0px) + 4px)',
-            p: 1.5,
-          }}
-        >
-          <SelectContent />
+        <SelectContent />
+      </Box>
+      <Divider />
+      <Box
+        sx={{
+          overflow: 'auto',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <MenuContent />
+      </Box>
+      <Stack
+        direction="row"
+        sx={{
+          p: 2,
+          gap: 1,
+          alignItems: 'center',
+          borderTop: '1px solid',
+          borderColor: 'divider',
+        }}
+      >
+        <Avatar
+          sizes="small"
+          alt="Eric Medina"
+          src="/static/images/avatar/7.jpg"
+          sx={{ width: 36, height: 36 }}
+        />
+        <Box sx={{ mr: 'auto' }}>
+          <Typography variant="body2" sx={{ fontWeight: 500, lineHeight: '16px' }}>
+            Eric Medina
+          </Typography>
+          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+            eric@email.com
+          </Typography>
         </Box>
-        <Divider />
-        <Box
-          sx={{
-            overflow: 'auto',
-            height: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          <MenuContent />
-          
-        </Box>
-
-        {/* this stack block contains the information for the users information on the bottom */}
-        <Stack
-          direction="row"
-          sx={{
-            p: 2,
-            gap: 1,
-            alignItems: 'center',
-            borderTop: '1px solid',
-            borderColor: 'divider',
-          }}
-        >
-          <Avatar
-            sizes="small"
-            alt="Eric Medina"
-            src="/static/images/avatar/7.jpg"
-            sx={{ width: 36, height: 36 }}
-          />
-          <Box sx={{ mr: 'auto' }}>
-            <Typography variant="body2" sx={{ fontWeight: 500, lineHeight: '16px' }}>
-              Eric Medina
-            </Typography>
-            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-              eric@email.com
-            </Typography>
-          </Box>
-          <OptionsMenu />
-        </Stack>
-      </Drawer>
-      </Drawer>
+        <OptionsMenu />
+      </Stack>
+    </Drawer>
   );
 }
-
-SideMenu.propTypes = {
-  open: PropTypes.bool,
-  toggleDrawer: PropTypes.func.isRequired,
-};
-
-export default SideMenu

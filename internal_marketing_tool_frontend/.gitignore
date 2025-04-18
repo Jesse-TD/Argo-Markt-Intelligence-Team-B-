@@ -24,3 +24,4 @@ yarn-error.log*
 
 #credentials
 src/backend/credentials.json
+**/openAi_creds.json
