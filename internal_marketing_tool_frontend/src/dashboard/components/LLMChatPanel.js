@@ -33,9 +33,10 @@ export default function LLMChatPanel() {
     const sections = responseText.split('###').map((section, index) => {
       if (index === 0) return null; // Skip the first part before the first header
       const [title, ...content] = section.trim().split("\n");
-
+  
       const cleanTitle = title.replace(/^#+\s*/, '').trim(); // Removes leading # symbols
-
+      
+  
       // Extract numbered list items (e.g., 1., 2., 3.)
       const body = content
         .map((line) => {
@@ -53,19 +54,20 @@ export default function LLMChatPanel() {
           );
         })
         .filter(Boolean);
-
+  
       return (
-        <Box key={title}>
+        <Box key={cleanTitle}>
           <Typography variant="h6" sx={{ fontWeight: "bold", mt: 2 }}>
-            {title}
+            {cleanTitle}  {/* Use the clean title here */}
           </Typography>
           {body}
         </Box>
       );
     });
-
+  
     return sections;
   };
+  
 
   return (
     <Box sx={{ my: 4, px: 2 }}>
