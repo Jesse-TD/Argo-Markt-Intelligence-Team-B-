@@ -7,7 +7,7 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { useColorScheme } from '@mui/material/styles';
 
-export default function ColorModeIconDropdown(props) {
+const ColorModeIconDropdown = React.forwardRef(function ColorModeIconDropdown(props, ref) {
   const { mode, systemMode, setMode } = useColorScheme();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
@@ -52,6 +52,7 @@ export default function ColorModeIconDropdown(props) {
         aria-controls={open ? 'color-scheme-menu' : undefined}
         aria-haspopup="true"
         aria-expanded={open ? 'true' : undefined}
+        ref={ref}
         {...props}
       >
         {icon}
@@ -86,4 +87,6 @@ export default function ColorModeIconDropdown(props) {
       </Menu>
     </React.Fragment>
   );
-}
+});
+
+export default ColorModeIconDropdown;

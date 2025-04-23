@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Badge, { badgeClasses } from '@mui/material/Badge';
 import IconButton from '@mui/material/IconButton';
 
-function MenuButton({ showBadge = false, ...props }) {
+const MenuButton = React.forwardRef(function MenuButton({ showBadge = false, ...props }, ref) {
   return (
     <Badge
       color="error"
@@ -11,10 +11,10 @@ function MenuButton({ showBadge = false, ...props }) {
       invisible={!showBadge}
       sx={{ [`& .${badgeClasses.badge}`]: { right: 2, top: 2 } }}
     >
-      <IconButton size="small" {...props} />
+      <IconButton size="small" {...props} ref={ref} />
     </Badge>
   );
-}
+});
 
 MenuButton.propTypes = {
   showBadge: PropTypes.bool,

@@ -56,7 +56,7 @@ export default function LLMChatPanel({ onStateChange, defaultOpen = false, defau
     setResponse("");
 
     try {
-      const res = await fetch("http://localhost:5000/api/custom-insight", {
+      const res = await fetch("http://localhost:5001/api/custom-insight", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query }),

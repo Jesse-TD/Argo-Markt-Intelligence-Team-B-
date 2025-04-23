@@ -13,6 +13,40 @@ import HighchartsReact from "highcharts-react-official";
 import HighlightedCard from "./HighlightedCard";
 import Box from "@mui/material/Box";
 
+// Client-side cache utilities
+const CACHE_EXPIRY = 15 * 60 * 1000; // 15 minutes in milliseconds
+
+const saveToCache = (key, data) => {
+  try {
+    const cacheData = {
+      data,
+      timestamp: Date.now()
+    };
+    localStorage.setItem(key, JSON.stringify(cacheData));
+  } catch (error) {
+    console.warn("Failed to save to cache:", error);
+  }
+};
+
+const getFromCache = (key) => {
+  try {
+    const cachedData = localStorage.getItem(key);
+    if (!cachedData) return null;
+    
+    const { data, timestamp } = JSON.parse(cachedData);
+    if (Date.now() - timestamp > CACHE_EXPIRY) {
+      // Cache expired
+      localStorage.removeItem(key);
+      return null;
+    }
+    
+    return data;
+  } catch (error) {
+    console.warn("Failed to retrieve from cache:", error);
+    return null;
+  }
+};
+
 const DashboardTables = () => {
   const [chartData, setChartData] = useState([]);
   const [startDate, setStartDate] = useState("7daysAgo");
@@ -22,9 +56,22 @@ const DashboardTables = () => {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
+      
+      // Try to get data from cache first
+      const cacheKey = `dashboard_${startDate}`;
+      const cachedData = getFromCache(cacheKey);
+      
+      if (cachedData) {
+        console.log("Using cached dashboard data");
+        setChartData(cachedData);
+        setLoading(false);
+        setError(null);
+        return;
+      }
+      
       try {
         const response = await axios.get(
-          `http://localhost:5000/api/main-dashboard?start=${startDate}&end=yesterday`
+          `http://localhost:5001/api/main-dashboard?start=${startDate}&end=yesterday`
         );
 
         const rows = response.data?.[0]?.rows || [];
@@ -41,6 +88,8 @@ const DashboardTables = () => {
           return aDate - bDate;
         });
 
+        // Save to cache
+        saveToCache(cacheKey, formatted);
         setChartData(formatted);
         setError(null);
       } catch (err) {

@@ -19,6 +19,40 @@ const formatMonthYear = (month, year) => {
   });
 };
 
+// Client-side cache utilities
+const CACHE_EXPIRY = 60 * 60 * 1000; // 1 hour in milliseconds
+
+const saveToCache = (key, data) => {
+  try {
+    const cacheData = {
+      data,
+      timestamp: Date.now()
+    };
+    localStorage.setItem(key, JSON.stringify(cacheData));
+  } catch (error) {
+    console.warn("Failed to save to cache:", error);
+  }
+};
+
+const getFromCache = (key) => {
+  try {
+    const cachedData = localStorage.getItem(key);
+    if (!cachedData) return null;
+    
+    const { data, timestamp } = JSON.parse(cachedData);
+    if (Date.now() - timestamp > CACHE_EXPIRY) {
+      // Cache expired
+      localStorage.removeItem(key);
+      return null;
+    }
+    
+    return data;
+  } catch (error) {
+    console.warn("Failed to retrieve from cache:", error);
+    return null;
+  }
+};
+
 // Build Highcharts configs for one page/video report pair
 const buildChartsForPair = ({ pageTitle, videoTitle, pageReport, videoReport, videoLength }) => {
   const categories = pageReport.data.rows.map((row) =>
@@ -210,6 +244,8 @@ export default function ReportGrid() {
   const [reportPairs, setReportPairs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedSections, setExpandedSections] = useState({}); // Track expanded sections
+  const [dataSource, setDataSource] = useState(''); // Track if data is from server or cache
+  const [lastUpdated, setLastUpdated] = useState(null); // When data was last retrieved
 
   // Default range: last year to today
   const [startDate, setStartDate] = useState("2024-04-01");
@@ -257,19 +293,94 @@ export default function ReportGrid() {
 
   const fetchData = async (start, end) => {
     setLoading(true);
+    
+    // Check client-side cache first
+    const cacheKey = `reports_${start}_${end}`;
+    const cachedData = getFromCache(cacheKey);
+    
+    if (cachedData) {
+      console.log("Using cached report data");
+      setReportPairs(cachedData);
+      setLoading(false);
+      setDataSource('cache');
+      setLastUpdated(Date.now());
+      return;
+    }
+    
+    // Progressive loading - show existing data while fetching new data
+    // Find closest date range in cache, if any
+    let closestCacheData = null;
+    try {
+      // Check for any cached date ranges
+      const cacheKeys = Object.keys(localStorage).filter(key => key.startsWith('reports_'));
+      if (cacheKeys.length > 0) {
+        // Use the most recent cache as a temporary view
+        const mostRecentKey = cacheKeys.sort((a, b) => {
+          const aData = JSON.parse(localStorage.getItem(a));
+          const bData = JSON.parse(localStorage.getItem(b));
+          return bData.timestamp - aData.timestamp;
+        })[0];
+        
+        closestCacheData = JSON.parse(localStorage.getItem(mostRecentKey)).data;
+        // Show the cached data immediately while loading
+        if (closestCacheData && closestCacheData.length > 0) {
+          setReportPairs(closestCacheData);
+          setLoading(false); // Show UI with cached data
+          setDataSource('cache');
+          setLastUpdated(Date.now());
+        }
+      }
+    } catch (err) {
+      console.warn("Error finding closest cache:", err);
+    }
+    
+    // In parallel, start prefetching the next likely date range
+    const prefetchNextDateRange = () => {
+      // Calculate common next ranges based on current selection
+      const nextRanges = [];
+      
+      // If user selected a month, prefetch the previous/next month
+      if (start.includes('-')) {
+        const date = new Date(start);
+        // Previous month
+        date.setMonth(date.getMonth() - 1);
+        const prevMonth = date.toISOString().split('T')[0];
+        
+        // Next month
+        date.setMonth(date.getMonth() + 2); // +2 because we did -1 before
+        const nextMonth = date.toISOString().split('T')[0];
+        
+        nextRanges.push([prevMonth, end]);
+        nextRanges.push([nextMonth, end]);
+      }
+      
+      // Prefetch each range in the background
+      nextRanges.forEach(([nextStart, nextEnd]) => {
+        const nextCacheKey = `reports_${nextStart}_${nextEnd}`;
+        if (!getFromCache(nextCacheKey)) {
+          console.log(`Prefetching next likely range: ${nextStart} to ${nextEnd}`);
+          fetch(`http://localhost:5001/api/all-dynamic-reports?start=${nextStart}&end=${nextEnd}`)
+            .catch(err => console.warn("Error prefetching:", err));
+        }
+      });
+    };
+    
     const pairs = [];
 
-    for (let i = 0; i < videoTitles.length; i++) {
-      const videoTitle = videoTitles[i].trim();
-      const pageTitle = pageTitles[i].trim();
+    try {
+      // Set a flag to track if we need to update the UI
+      let needUIUpdate = !closestCacheData;
+      
+      // Use the new batch endpoint instead of making 7 separate requests
+      const res = await axios.get("http://localhost:5001/api/all-dynamic-reports", {
+        params: { start, end },
+      });
 
-      try {
-        const res = await axios.get("http://localhost:5000/api/dynamic-report", {
-          params: { videoTitle, pageTitle, start, end },
-        });
-
-        if (res.data?.length > 0) {
-          const [pageData, videoData] = res.data;
+      for (const item of res.data) {
+        const { videoTitle, pageTitle, data } = item;
+        
+        if (data?.length > 0) {
+          const [pageData, videoData] = data;
 
           if (pageData?.rows?.length && videoData?.rows?.length) {
             // Sort by year/month
@@ -293,18 +404,99 @@ export default function ReportGrid() {
             });
           }
         }
-      } catch (err) {
-        console.error(`Error fetching pair ${i + 1}:`, err.message);
       }
-    }
 
-    setReportPairs(pairs);
-    setLoading(false);
+      // Save to client-side cache
+      saveToCache(cacheKey, pairs);
+      
+      // Update UI if we have new data or if we didn't show temp data earlier
+      if (needUIUpdate || pairs.length > 0) {
+        setReportPairs(pairs);
+      }
+      
+      // Start prefetching next likely ranges
+      setTimeout(prefetchNextDateRange, 2000);
+
+      setDataSource('server');
+      setLastUpdated(Date.now());
+    } catch (err) {
+      console.error(`Error fetching reports:`, err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // Add keyboard shortcut for faster navigation between date ranges
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Arrow left/right to navigate between common date ranges
+      if (e.altKey && e.key === 'ArrowLeft') {
+        // Go to previous month/period
+        const date = new Date(startDate);
+        date.setMonth(date.getMonth() - 1);
+        const newDate = date.toISOString().split('T')[0];
+        setStartDate(newDate);
+        fetchData(newDate, endDate);
+      } else if (e.altKey && e.key === 'ArrowRight') {
+        // Go to next month/period
+        const date = new Date(startDate);
+        date.setMonth(date.getMonth() + 1);
+        const newDate = date.toISOString().split('T')[0];
+        setStartDate(newDate);
+        fetchData(newDate, endDate);
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [startDate, endDate]);
+
+  // Add initial data load effect
   useEffect(() => {
     fetchData(startDate, endDate);
   }, []);
+  
+  // Common date ranges for quick selection
+  const predefinedDateRanges = [
+    { label: 'Last Month', start: (() => {
+      const date = new Date();
+      date.setMonth(date.getMonth() - 1);
+      date.setDate(1);
+      return date.toISOString().split('T')[0];
+    })(), end: (() => {
+      const date = new Date();
+      date.setDate(0); // Last day of previous month
+      return date.toISOString().split('T')[0];
+    })() },
+    { label: 'Last 3 Months', start: (() => {
+      const date = new Date();
+      date.setMonth(date.getMonth() - 3);
+      return date.toISOString().split('T')[0];
+    })(), end: (() => {
+      return new Date().toISOString().split('T')[0];
+    })() },
+    { label: 'Year to Date', start: (() => {
+      const date = new Date();
+      date.setMonth(0);
+      date.setDate(1);
+      return date.toISOString().split('T')[0];
+    })(), end: (() => {
+      return new Date().toISOString().split('T')[0];
+    })() },
+    { label: 'Last Year', start: (() => {
+      const date = new Date();
+      date.setFullYear(date.getFullYear() - 1);
+      date.setMonth(0);
+      date.setDate(1);
+      return date.toISOString().split('T')[0];
+    })(), end: (() => {
+      const date = new Date();
+      date.setFullYear(date.getFullYear() - 1);
+      date.setMonth(11);
+      date.setDate(31);
+      return date.toISOString().split('T')[0];
+    })() },
+  ];
 
   const toggleAllCharts = (sectionIndex) => {
     setExpandedSections((prevState) => {
@@ -386,8 +578,67 @@ export default function ReportGrid() {
               </Button>
             </Grid>
           </Grid>
+          
+          {/* Quick Date Range Selection */}
+          <Grid container spacing={2} sx={{ mt: 2 }}>
+            <Grid item>
+              <Typography variant="body1" sx={{ color: 'text.secondary', mr: 1 }}>
+                Quick Select:
+              </Typography>
+            </Grid>
+            {predefinedDateRanges.map((range, index) => (
+              <Grid item key={index}>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={() => {
+                    setStartDate(range.start);
+                    setEndDate(range.end);
+                    fetchData(range.start, range.end);
+                  }}
+                  sx={{
+                    borderColor: '#01579B',
+                    color: '#01579B',
+                    '&:hover': {
+                      backgroundColor: 'rgba(1, 87, 155, 0.04)',
+                      borderColor: '#01579B',
+                    }
+                  }}
+                >
+                  {range.label}
+                </Button>
+              </Grid>
+            ))}
+          </Grid>
         </form>
       </Box>
+
+      {/* Data Freshness Indicator */}
+      {!loading && lastUpdated && (
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, px: 2 }}>
+          <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
+            Data {dataSource === 'cache' ? 'from cache' : 'refreshed'} {' '}
+            {new Date(lastUpdated).toLocaleTimeString()} {' '}
+            {dataSource === 'cache' && (
+              <Button 
+                variant="text" 
+                size="small" 
+                onClick={() => fetchData(startDate, endDate)}
+                sx={{ 
+                  ml: 1, 
+                  minWidth: 'auto', 
+                  p: '2px 6px', 
+                  color: '#01579B', 
+                  textTransform: 'none',
+                  '&:hover': { backgroundColor: 'rgba(1, 87, 155, 0.04)' }
+                }}
+              >
+                Refresh
+              </Button>
+            )}
+          </Typography>
+        </Box>
+      )}
 
       {/* Averages Overview */}
       {!loading && (
