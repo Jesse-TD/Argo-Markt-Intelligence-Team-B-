@@ -3,7 +3,6 @@ import Stack from '@mui/material/Stack';
 import NotificationsRoundedIcon from '@mui/icons-material/NotificationsRounded';
 import NavbarBreadcrumbs from './NavbarBreadcrumbs';
 import MenuButton from './MenuButton';
-import ColorModeIconDropdown from '../../shared-theme/ColorModeIconDropdown';
 import SideMenu from './SideMenu';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import { Tooltip, Typography } from '@mui/material';
