@@ -8,6 +8,9 @@ import HighchartsReact from "highcharts-react-official";
 import Card from "@mui/material/Card";
 import Copyright from "../internals/components/Copyright";
 import { Collapse, Button } from "@mui/material";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+
 
 // Format month & year safely using UTC
 const formatMonthYear = (month, year) => {
@@ -333,6 +336,7 @@ export default function ReportGrid() {
     } catch (err) {
       console.warn("Error finding closest cache:", err);
     }
+
     
     // In parallel, start prefetching the next likely date range
     const prefetchNextDateRange = () => {
@@ -455,6 +459,56 @@ export default function ReportGrid() {
   useEffect(() => {
     fetchData(startDate, endDate);
   }, []);
+
+  const [downloadProgress, setDownloadProgress] = useState({ active: false, current: 0, total: 0 });
+
+  const exportAllSectionsAsMultiPagePDF = async () => {
+    const sections = document.querySelectorAll(".pdf-section");
+    const totalSections = sections.length;
+  
+    setDownloadProgress({ active: true, current: 0, total: totalSections });
+  
+    const sectionCount = totalSections - 1;
+    setExpandedSections(
+      Array.from({ length: sectionCount }).reduce((acc, _, i) => {
+        acc[i] = true;
+        return acc;
+      }, {})
+    );
+  
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait for charts to expand
+  
+    const pdfWidth = 210; // mm
+    const pdf = new jsPDF("p", "mm", "a4");
+  
+    for (let i = 0; i < totalSections; i++) {
+      const canvas = await html2canvas(sections[i], {
+        scale: 1.5,
+        useCORS: true,
+        windowWidth: sections[i].scrollWidth,
+      });
+  
+      const imgData = canvas.toDataURL("image/jpeg", 0.95);
+      const imgWidth = pdfWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  
+      if (i > 0) {
+        pdf.addPage([imgWidth, imgHeight]);
+      } else {
+        pdf.internal.pageSize.setHeight(imgHeight);
+      }
+  
+      pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight);
+  
+      // Update progress
+      setDownloadProgress(prev => ({ ...prev, current: i + 1 }));
+    }
+  
+    pdf.save("full-report.pdf");
+    setDownloadProgress({ active: false, current: 0, total: 0 });
+  };
+  
+  
   
   // Common date ranges for quick selection
   const predefinedDateRanges = [
@@ -577,8 +631,24 @@ export default function ReportGrid() {
                 Fetch Reports
               </Button>
             </Grid>
+            <Grid>
+            <Button
+              variant="contained"
+              sx={{
+                backgroundColor: '#01579B',
+                color: 'white',
+                '&:hover': {
+                  backgroundColor: '#014477',
+                },
+                ml: 2
+              }}
+              onClick={exportAllSectionsAsMultiPagePDF}
+              >
+              Export Full Report as PDF
+              </Button>
+            </Grid>
           </Grid>
-          
+
           {/* Quick Date Range Selection */}
           <Grid container spacing={2} sx={{ mt: 2 }}>
             <Grid item>
@@ -642,6 +712,7 @@ export default function ReportGrid() {
 
       {/* Averages Overview */}
       {!loading && (
+        <div className="pdf-section" id="averages-section">
         <Box sx={{ px: 2, mt: 4, mb: 6 }}>
           <Card variant="outlined" sx={{ p: 2, width: '100%' }}>
             <Typography variant="h5" sx={{ mb: 2, color: '#01579B' }}>
@@ -682,6 +753,7 @@ export default function ReportGrid() {
             </table>
           </Card>
         </Box>
+        </div>
       )}
 
       {/* Display Sections */}
@@ -693,8 +765,9 @@ export default function ReportGrid() {
             const charts = buildChartsForPair({ ...pair, videoLength: videoLengths[i] });
 
             return (
+              <div className="pdf-section" id={`section-${i}`} key={`section-${i}`}>
               <Grid item xs={12} key={`pair-${i}`}>
-                <Box sx={{ width: "100%", px: 2 }}>
+                <Box id={`section-${i}`} sx={{ width: "100%", px: 2 }}>
                   <Card variant="outlined" sx={{ width: '100%' }}>
                     <Typography variant="h6" sx={{ mb: 1, color: "#01579B" }}>
                       {sectionNames[i]}
@@ -716,7 +789,7 @@ export default function ReportGrid() {
                           </Card>
                         </Box>
                       </Grid>
-                    
+
 
                     {/* Toggleable charts */}
                     {["totalVsNewUsersChart", "videoRetentionChart", "engagementTimeChart"].map((chartKey) => (
@@ -731,6 +804,7 @@ export default function ReportGrid() {
                         </Collapse>
                     ))}
                     </Grid>
+                    
                     <Button
                       variant="contained"
                       onClick={() => toggleAllCharts(i)}
@@ -741,12 +815,22 @@ export default function ReportGrid() {
                   </Card>
                 </Box>
               </Grid>
+              </div>
             );
           })}
         </Grid>
       )}
 
       <Copyright sx={{ my: 4 }} />
+      {downloadProgress.active && (
+  <Box sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, bgcolor: 'rgba(1,87,155,0.9)', zIndex: 1300 }}>
+    <Box sx={{ width: `${(downloadProgress.current / downloadProgress.total) * 100}%`, height: 5, bgcolor: '#fff', transition: 'width 0.2s' }} />
+    <Typography sx={{ color: '#fff', px: 2, py: 1, fontSize: '0.875rem' }}>
+      Generating PDF... ({downloadProgress.current}/{downloadProgress.total} sections)
+    </Typography>
+  </Box>
+)}
+
     </Box>
   );
 }
