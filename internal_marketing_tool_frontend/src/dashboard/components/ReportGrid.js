@@ -465,6 +465,9 @@ export default function ReportGrid() {
   const exportAllSectionsAsMultiPagePDF = async () => {
     const sections = document.querySelectorAll(".pdf-section");
     const totalSections = sections.length;
+
+    const noPrintElements = document.querySelectorAll(".no-print");
+    noPrintElements.forEach(el => (el.style.display = "none"));
   
     setDownloadProgress({ active: true, current: 0, total: totalSections });
   
@@ -806,6 +809,7 @@ export default function ReportGrid() {
                     </Grid>
                     
                     <Button
+                      className="no-print"
                       variant="contained"
                       onClick={() => toggleAllCharts(i)}
                       sx={{ marginBottom: "10px", backgroundColor: "#01579B", color: "white"}}
