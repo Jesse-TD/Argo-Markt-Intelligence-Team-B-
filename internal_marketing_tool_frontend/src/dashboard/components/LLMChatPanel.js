@@ -5,6 +5,9 @@ import ChatIcon from '@mui/icons-material/Chat';
 import CloseIcon from '@mui/icons-material/Close';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+
 
 export default function LLMChatPanel({ onStateChange, defaultOpen = false, defaultExpanded = false }) {
   const [query, setQuery] = useState("");
@@ -61,9 +64,9 @@ export default function LLMChatPanel({ onStateChange, defaultOpen = false, defau
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query }),
       });
-
-      const data = await res.json();
-      setResponse(data.response);
+      
+      const text = await res.text();
+      setResponse(text);
     } catch (err) {
       console.error("Error fetching insight:", err);
       setResponse("Error retrieving response.");
@@ -73,39 +76,13 @@ export default function LLMChatPanel({ onStateChange, defaultOpen = false, defau
   };
 
   const formatResponse = (responseText) => {
-    const sections = responseText.split('###').map((section, index) => {
-      if (index === 0) return null;
-      const [title, ...content] = section.trim().split("\n");
-      const cleanTitle = title.replace(/^#+\s*/, '').trim();
-      
-      const body = content
-        .map((line) => {
-          if (line.match(/^\d+\./)) {
-            return (
-              <Typography key={line} variant="body1" sx={{ ml: 2, fontWeight: "normal" }}>
-                {line}
-              </Typography>
-            );
-          }
-          return (
-            <Typography key={line} variant="body2" sx={{ ml: 4 }}>
-              {line}
-            </Typography>
-          );
-        })
-        .filter(Boolean);
-  
-      return (
-        <Box key={cleanTitle}>
-          <Typography variant="h6" sx={{ fontWeight: "bold", mt: 2 }}>
-            {cleanTitle}
-          </Typography>
-          {body}
-        </Box>
-      );
-    });
-  
-    return sections;
+    return (
+      <Box sx={{ whiteSpace: 'pre-wrap' }}>
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          {responseText}
+        </ReactMarkdown>
+      </Box>
+    );
   };
 
   const handleClose = () => {

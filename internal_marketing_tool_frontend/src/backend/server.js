@@ -16,7 +16,7 @@ const {
 } = require('./ApiHandler');
 
 // GPT LLM Imports
-const { getLLMResponse } = require('./test'); // change this path to your actual backend file if different
+const { ArgoAgents } = require('./agentFlow'); // change this path to your actual backend file if different
 
 const app = express();
 const port = 5001;
@@ -486,23 +486,25 @@ app.post("/api/custom-insight", async (req, res) => {
   if (!query) return res.status(400).json({ error: "Missing user query." });
 
   try {
-    const chunks = [];
-    const originalWrite = process.stdout.write;
+    const { ArgoAgents } = require("./agentFlow");
+    const agentSystem = new ArgoAgents();
 
-    process.stdout.write = (chunk) => {
-      chunks.push(chunk);
-    };
+    const result = await agentSystem.runWorkflow(query);
 
-    await getLLMResponse(query);
+    const raw = result?.data?.result || "";
 
-    process.stdout.write = originalWrite;
+    const cleaned = raw
+      .replace(/\\n/g, '\n')
+      .replace(/###\s*(.+?)\s*\n/g, '\n\n$1\n' + '-'.repeat(40) + '\n')
+      .trim();
 
-    res.json({ response: chunks.join('') });
+    res.send(cleaned);
   } catch (err) {
     console.error("LLM error:", err);
     res.status(500).json({ error: "Failed to generate GPT insights." });
   }
 });
+
 
 app.listen(port, () => {
   console.log(`🚀 Server is running on port ${port}`);
