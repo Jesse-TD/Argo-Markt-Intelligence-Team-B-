@@ -1,70 +1,88 @@
-# Getting Started with Create React App
+# Internal Marketing Tool 
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A React-based project for internal marketing analytics, powered by GA4 and OpenAI.
 
-## Available Scripts
+##  Features
 
-In the project directory, you can run:
+-  Dynamic data visualizations with MUI and Highcharts
+-  AI-generated insights with OpenAI and LlamaIndex
+-  Google Analytics 4 (GA4) reporting
+-  Exportable dashboards (PDF, screenshots)
+-  Firebase authentication
 
-### `npm start`
+##  Setup Instructions
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Prerequisites
+- Node.js v16 or higher
+- npm (comes with Node.js)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Install Dependencies
+```bash
+npm ci
+```
 
-### `npm test`
+### Start the Backend Server
+```bash
+cd internal_marketing_tool_frontend\src\backend
+node server.js
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Start the Development Server
+```bash
+cd internal_marketing_tool_frontend
+npm start
+```
+The app will be available at `http://localhost:3000`
 
-### `npm run build`
+## Environment Variables
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Place the following files in `src/backend/`:
+- `credentials.json` – contains your Google Analytics 4 credentials
+- `openAi_creds.json` – contains your OpenAI API key
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+##  Folder Structure
+```plaintext
+src/
+  backend/          # backend components
+  dashboard/        # UI components
+  pages/            # Main views
+  App.js            # routing page
+  firebase.js
+  index.js
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+##  Key Dependencies
 
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- @babel/plugin-proposal-private-property-in-object@7.21.11  
+- @emotion/react@11.14.0  
+- @emotion/styled@11.14.0  
+- @fontsource/roboto@5.1.1  
+- @google-analytics/data@4.12.1  
+- @mui/icons-material@6.4.6  
+- @mui/material@6.4.6  
+- @mui/x-charts@7.26.0  
+- @mui/x-data-grid@7.26.0  
+- @mui/x-date-pickers@7.26.0  
+- @mui/x-tree-view@7.26.0  
+- @react-spring/web@9.7.5  
+- axios@1.8.1  
+- body-parser@2.2.0  
+- cors@2.8.5  
+- dayjs@1.11.13  
+- dotenv@16.5.0  
+- firebase@11.4.0  
+- highcharts@12.1.2  
+- highcharts-react-official@3.2.1  
+- html2canvas@1.4.1  
+- jspdf@3.0.1  
+- llamaindex@0.9.19  
+- node-cache@5.1.2  
+- openai@4.93.0  
+- react@18.3.1  
+- react-dom@18.3.1  
+- react-markdown@10.1.0  
+- react-router-dom@7.1.5  
+- react-scripts@5.0.1  
+- remark-gfm@4.0.1  
+- web-vitals@4.2.4  
+- zod@3.24.3  
