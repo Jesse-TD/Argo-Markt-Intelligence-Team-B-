@@ -647,7 +647,7 @@ export default function ReportGrid() {
               }}
               onClick={exportAllSectionsAsMultiPagePDF}
               >
-              Export Full Report as PDF
+              Export Report as PDF
               </Button>
             </Grid>
           </Grid>
@@ -809,7 +809,6 @@ export default function ReportGrid() {
                     </Grid>
                     
                     <Button
-                      className="no-print"
                       variant="contained"
                       onClick={() => toggleAllCharts(i)}
                       sx={{ marginBottom: "10px", backgroundColor: "#01579B", color: "white"}}

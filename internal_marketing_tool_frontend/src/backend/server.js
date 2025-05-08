@@ -89,12 +89,12 @@ const prefetchDynamicReports = async () => {
     }
   ];
 
-  console.log("🔄 Prefetching dynamic reports for common date ranges...");
+  console.log("Prefetching dynamic reports for common date ranges...");
   
   // Process date ranges sequentially to avoid overwhelming the API
   for (const { start, end } of dateRanges) {
     const cacheKey = `${start}_${end}`;
-    console.log(`🔍 Prefetching date range: ${start} to ${end}`);
+    console.log(`Prefetching date range: ${start} to ${end}`);
     
     if (!queryCache.dynamicReportPairs[cacheKey]) {
       queryCache.dynamicReportPairs[cacheKey] = {};
@@ -118,7 +118,7 @@ const prefetchDynamicReports = async () => {
         }
         
         try {
-          console.log(`🎯 Prefetching: "${pageTitle}" and Video: "${videoTitle}"`);
+          console.log(`Prefetching: "${pageTitle}" and Video: "${videoTitle}"`);
           const queryBatch = createBatchQueries(pageTitle, videoTitle, start, end);
           
           const [response] = await analyticsDataClient.batchRunReports({
@@ -127,7 +127,7 @@ const prefetchDynamicReports = async () => {
           });
           
           if (!response.reports || response.reports.length === 0) {
-            console.warn(`⚠️ No reports returned for Page: "${pageTitle}", Video: "${videoTitle}"`);
+            console.warn(`No reports returned for Page: "${pageTitle}", Video: "${videoTitle}"`);
             return;
           }
           
@@ -146,9 +146,9 @@ const prefetchDynamicReports = async () => {
             timestamp: Date.now()
           };
           
-          console.log(`✅ Prefetched: "${pageTitle}" / "${videoTitle}"`);
+          console.log(`Prefetched: "${pageTitle}" / "${videoTitle}"`);
         } catch (error) {
-          console.error(`❌ Error prefetching "${videoTitle}" - "${pageTitle}":`, error.message);
+          console.error(`Error prefetching "${videoTitle}" - "${pageTitle}":`, error.message);
         }
       });
       
@@ -162,18 +162,18 @@ const prefetchDynamicReports = async () => {
     }
   }
   
-  console.log("✅ Prefetching complete for all date ranges!");
+  console.log("Prefetching complete for all date ranges!");
 };
 
 // Prefetch main dashboard data
 const prefetchMainDashboard = async () => {
   try {
-    console.log("🔄 Prefetching main dashboard data...");
+    console.log("Prefetching main dashboard data...");
     const data = await runMainDashboard("7daysAgo", "yesterday");
     queryCache.mainDashboard = { data, timestamp: Date.now() };
-    console.log("✅ Main dashboard data prefetched!");
+    console.log("Main dashboard data prefetched!");
   } catch (error) {
-    console.error("❌ Error prefetching main dashboard:", error.message);
+    console.error("Error prefetching main dashboard:", error.message);
   }
 };
 
@@ -264,7 +264,7 @@ app.get("/api/dynamic-report", async (req, res) => {
       return res.json(queryCache.dynamicReportPairs[cacheKey][pairCacheKey].data);
     }
     
-    console.log(`🎯 Received query for Page: "${pageTitle}" and Video: "${videoTitle}"`);
+    console.log(`Received query for Page: "${pageTitle}" and Video: "${videoTitle}"`);
     const queryBatch = createBatchQueries(pageTitle, videoTitle, start, end);
 
     const [response] = await analyticsDataClient.batchRunReports({
@@ -273,7 +273,7 @@ app.get("/api/dynamic-report", async (req, res) => {
     });
 
     if (!response.reports || response.reports.length === 0) {
-      console.warn(`⚠️ No reports returned for Page: "${pageTitle}", Video: "${videoTitle}"`);
+      console.warn(`No reports returned for Page: "${pageTitle}", Video: "${videoTitle}"`);
       return res.json([]);
     }
 
@@ -299,8 +299,8 @@ app.get("/api/dynamic-report", async (req, res) => {
 
     res.json(results);
   } catch (error) {
-    console.error("❌ Server Error for Page:", pageTitle, "Video:", videoTitle);
-    console.error("🔥 Full error details:", JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
+    console.error("Server Error for Page:", pageTitle, "Video:", videoTitle);
+    console.error("Full error details:", JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -326,7 +326,7 @@ app.get("/api/all-dynamic-reports", async (req, res) => {
             data: value.data 
           };
         });
-        console.log(`✅ Returned complete cache for ${cacheKey}`);
+        console.log(`Returned complete cache for ${cacheKey}`);
         console.timeEnd(`batch-query-${cacheKey}`);
         return res.json(responseData);
       }
@@ -357,11 +357,11 @@ app.get("/api/all-dynamic-reports", async (req, res) => {
       }
     }
     
-    console.log(`📊 Using ${cachedResults.length} cached items, fetching ${pendingFetches.length} items`);
+    console.log(`Using ${cachedResults.length} cached items, fetching ${pendingFetches.length} items`);
     
     // If all items are cached, return immediately
     if (pendingFetches.length === 0) {
-      console.log(`✅ Returned all items from cache for ${cacheKey}`);
+      console.log(`Returned all items from cache for ${cacheKey}`);
       console.timeEnd(`batch-query-${cacheKey}`);
       return res.json(cachedResults);
     }
@@ -413,7 +413,7 @@ app.get("/api/all-dynamic-reports", async (req, res) => {
             
             return { videoTitle, pageTitle, data: results };
           } catch (err) {
-            console.error(`❌ Error fetching "${videoTitle}" - "${pageTitle}":`, err.message);
+            console.error(`Error fetching "${videoTitle}" - "${pageTitle}":`, err.message);
             return { videoTitle, pageTitle, data: [] };
           }
         });
@@ -430,11 +430,11 @@ app.get("/api/all-dynamic-reports", async (req, res) => {
     // Combine cached and fetched results
     const combinedResults = [...cachedResults, ...fetchedResults];
     
-    console.log(`✅ Returned combined results (${cachedResults.length} cached, ${fetchedResults.length} fetched) for ${cacheKey}`);
+    console.log(`Returned combined results (${cachedResults.length} cached, ${fetchedResults.length} fetched) for ${cacheKey}`);
     console.timeEnd(`batch-query-${cacheKey}`);
     res.json(combinedResults);
   } catch (error) {
-    console.error("❌ Batch reports error:", error);
+    console.error("Batch reports error:", error);
     console.timeEnd(`batch-query-${cacheKey}`);
     res.status(500).json({ error: "Internal server error" });
   }
@@ -480,7 +480,7 @@ app.get("/api/cache-status", (req, res) => {
   });
 });
 
-// ✅ New GPT insight route
+// New GPT insight route
 app.post("/api/custom-insight", async (req, res) => {
   const { query } = req.body;
   if (!query) return res.status(400).json({ error: "Missing user query." });
@@ -507,5 +507,5 @@ app.post("/api/custom-insight", async (req, res) => {
 
 
 app.listen(port, () => {
-  console.log(`🚀 Server is running on port ${port}`);
+  console.log(`Server is running on port ${port}`);
 });
